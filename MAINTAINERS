@@ -1,0 +1,24 @@
+This file contains a list of maintainers for the meta-tpm layer.
+
+Please submit any patches against meta-selinux to the Yocto Project mailing
+list (yocto@yoctoproject.org), copy the appropriate maintainers on your message.
+
+You may also contact the maintainers directly.
+
+Descriptions of section entries:
+
+	M: Mail patches to: FullName <address@domain>
+	F: Files and directories with wildcard patterns.
+	   A trailing slash includes all files and subdirectory files.
+	   F:	recipes-devtools/	all files in and below meta-crownbay
+	   F:	recipes-selinux/*	all files in meta-crownbay, but not below
+	   One pattern per line.  Multiple F: lines acceptable.
+
+Please keep this list in alphabetical order.
+
+Maintainers List (try to look for most precise areas first)
+
+COMMON
+M:	Philip Tricca <flihp@twobit.us>
+F:	conf
+F:	recipes-*

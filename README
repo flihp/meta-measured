@@ -1,0 +1,32 @@
+meta-tpm
+============
+
+This layer's purpose is enabling support for various TCG specified software.
+
+status
+------
+Oct 21, 2012 - Initial checkin.
+
+
+Dependencies
+------------
+
+This layer depends on the openembedded metadata and bitbake.
+
+Maintenance
+-----------
+Please see the MAINTAINERS file for information on contacting the maintainers
+of this layer, as well as instructions for submitting patches.
+
+
+Building the meta-selinux layer
+-------------------------------
+
+License
+-------
+
+All metadata is MIT licensed unless otherwise stated. Source code included
+in tree for individual recipes is under the LICENSE stated in each recipe
+(.bb file) unless otherwise stated.
+
+This README document is Copyright (C) 2012 Philip Tricca <flihp@twobit.us>
