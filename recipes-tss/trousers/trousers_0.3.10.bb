@@ -20,6 +20,8 @@ SRC_URI[sha256sum] = "eb9569de5c66d9698f6c3303de03777b95ec72827f68b7744454bfa922
 
 inherit autotools useradd
 
+EXTRA_OECONF="--with-gui=none"
+
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "tss"
 USERADD_PARAM_${PN} = "-M -d /var/lib/tpm -s /bin/false -g tss tss"
