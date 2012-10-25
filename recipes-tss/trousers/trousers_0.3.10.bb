@@ -18,6 +18,58 @@ SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.10/trous
 SRC_URI[md5sum] = "27b7374d991874b4a0a973b1c952c79f"
 SRC_URI[sha256sum] = "eb9569de5c66d9698f6c3303de03777b95ec72827f68b7744454bfa9227bc530"
 
+PROVIDES = "${PACKAGES}"
+PACKAGES = " \
+	libtspi \
+	libtspi-dbg \
+	libtspi-dev \
+	libtspi-doc \
+	libtspi-staticdev \
+	trousers \
+	trousers-dbg \
+	trousers-doc \
+	"
+
+FILES_libtspi = " \
+	${libdir}/*.so.1.2.0 \
+	"
+FILES_libtspi-dbg = " \
+	${libdir}/.debug \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tspi \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/trspi \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/include/*.h \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/include/tss \ 
+	"
+FILES_libtspi-dev = " \
+	${includedir} \
+	${libdir}/*.so \
+	${libdir}/*.so.1 \
+	"
+FILES_libtspi-doc = " \
+	${mandir}/man3 \
+	"
+FILES_libtspi-staticdev = " \
+	${libdir}/*.la \
+	${libdir}/*.a \
+	"
+FILES_${PN} = " \
+	${sbindir}/tcsd \
+	${sysconfdir} \
+	${localstatedir} \
+	"
+FILES_${PN}-dbg = " \
+	${sbindir}/.debug \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tcs \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tcsd \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tddl \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/trousers \
+	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/include/trousers \ 
+	"
+FILES_${PN}-doc = " \
+	${mandir}/man5 \
+	${mandir}/man8 \
+	"
+
 inherit autotools useradd
 
 EXTRA_OECONF="--with-gui=none"
