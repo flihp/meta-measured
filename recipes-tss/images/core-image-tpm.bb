@@ -7,7 +7,7 @@ LICENSE = "MIT"
 IMAGE_INSTALL = "\
 	${CORE_IMAGE_BASE_INSTALL} \
 	packagegroup-core-basic \
-	trousers \
+	packagegroup-tpm \
 "   
 
 inherit core-image
