@@ -9,7 +9,7 @@ SECTION = "tpm"
 PR = "r0"
 LICENSE = "CPL-1.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=059e8cd6165cb4c31e351f2b69388fd9"
-DEPENDS = "openssl"
+DEPENDS = "libtspi openssl"
 
 SRC_URI += " \
     http://downloads.sourceforge.net/project/trousers/tpm-tools/1.3.8/tpm-tools-1.3.8.tar.gz \
