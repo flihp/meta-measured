@@ -1,0 +1,31 @@
+Index: tboot-1.7.2/Config.mk
+===================================================================
+--- tboot-1.7.2.orig/Config.mk
++++ tboot-1.7.2/Config.mk
+@@ -46,16 +46,16 @@ CFLAGS_WARN       = -Wall -Wformat-secur
+ 	            -Wno-missing-field-initializers \
+ 	            -D_FORTIFY_SOURCE=2
+ 
+-AS         = as
+-LD         = ld
+-CC         = gcc
+-CPP        = cpp
+-AR         = ar
+-RANLIB     = ranlib
+-NM         = nm
+-STRIP      = strip
+-OBJCOPY    = objcopy
+-OBJDUMP    = objdump
++AS         ?= as
++LD         ?= ld
++CC         ?= gcc
++CPP        ?= cpp
++AR         ?= ar
++RANLIB     ?= ranlib
++NM         ?= nm
++STRIP      ?= strip
++OBJCOPY    ?= objcopy
++OBJDUMP    ?= objdump
+ 
+ ifeq ($(debug),n)
+ INSTALL_STRIP = -s
