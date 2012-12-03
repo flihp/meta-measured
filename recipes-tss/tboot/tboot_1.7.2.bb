@@ -19,6 +19,12 @@ SRC_URI[sha256sum] = "e0ed44d7ff7d2fa018fbf7cb9dccfaee47269d9a9f4a4688824aaa3235
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
 do_compile() {
+    # keep the OE TARGET_ARCH from confusing tboots Makefiles
+    if [ "${TARGET_ARCH}" != "x86_64" ]; then
+        TMP_TARGET_ARCH="x86_32"
+    else
+        TMP_TARGET_ARCH="x86_64"
+    fi
     oe_runmake SUBDIRS:=tboot CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}" LDFLAGS="" CFLAGS=""
-    oe_runmake -C utils CFLAGS+="-std=gnu99"
+    oe_runmake SUBDIRS:="lcptools tb_polgen utils docs" CFLAGS+="-std=c99" TARGET_ARCH="${TMP_TARGET_ARCH}"
 }
