@@ -20,4 +20,5 @@ COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
 do_compile() {
     oe_runmake SUBDIRS:=tboot CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}" LDFLAGS="" CFLAGS=""
+    oe_runmake -C utils CFLAGS+="-std=gnu99"
 }
