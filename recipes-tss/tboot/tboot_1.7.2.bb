@@ -3,7 +3,7 @@ DESCRIPTION = " \
   "
 SECTION = "bootloaders"
 PR = "r0"
-LICENSE = "PD"
+LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=661cd71df9c2b05204f9fef109bb7ff5"
 DEPENDS = "libtspi openssl zlib"
 
