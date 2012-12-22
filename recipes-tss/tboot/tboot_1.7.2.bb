@@ -29,3 +29,9 @@ do_compile() {
     oe_runmake SUBDIRS:=tboot CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}" LDFLAGS="" CFLAGS=""
     oe_runmake SUBDIRS:="lcptools tb_polgen utils docs" CFLAGS+="-std=c99" TARGET_ARCH="${TMP_TARGET_ARCH}"
 }
+
+do_install() {
+    oe_runmake DISTIR="${D}" DISTDIR="${D}" install
+}
+
+FILES_${PN}-dbg += "${base_prefix}/boot/tboot-syms"
