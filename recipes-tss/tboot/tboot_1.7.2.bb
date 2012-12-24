@@ -7,7 +7,6 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=661cd71df9c2b05204f9fef109bb7ff5"
 DEPENDS = "libtspi openssl zlib"
 
-
 SRC_URI += " \
     http://downloads.sourceforge.net/project/tboot/tboot/tboot-1.7.2.tar.gz \
     file://tboot-cross-compile.patch \
@@ -35,3 +34,10 @@ do_install() {
 }
 
 FILES_${PN}-dbg += "${base_prefix}/boot/tboot-syms"
+
+sysroot_stage_all_append() {
+	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
+
+	install -d ${DEPLOY_DIR_IMAGE}
+	install -m 0644 ${D}/boot/tboot.gz ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz
+}
