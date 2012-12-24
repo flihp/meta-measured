@@ -8,6 +8,7 @@ IMAGE_INSTALL = "\
 	${CORE_IMAGE_BASE_INSTALL} \
 	packagegroup-core-basic \
 	packagegroup-tpm \
-"   
+	packagegroup-tboot \
+"
 
 inherit core-image
