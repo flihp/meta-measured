@@ -1,4 +1,5 @@
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
-# Enable selinux support in the kernel if the feature is enabled
+# Enable TPM support in the kernel if the feature is enabled.
+#  Build modules for all the TPMs available.
 SRC_URI += "${@base_contains('DISTRO_FEATURES', 'tpm', 'file://tpm.cfg', '', d)}"
