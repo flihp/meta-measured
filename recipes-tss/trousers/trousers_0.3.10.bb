@@ -13,6 +13,7 @@ DEPENDS = "openssl"
 
 SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.10/trousers-0.3.10.tar.gz \
             file://trousers.init.sh \
+            file://trousers-udev.rules \
 "
 
 SRC_URI[md5sum] = "27b7374d991874b4a0a973b1c952c79f"
@@ -81,4 +82,6 @@ USERADD_PARAM_${PN} = "-M -d /var/lib/tpm -s /bin/false -g tss tss"
 do_install_append() {
         install -d ${D}${sysconfdir}/init.d
         install -m 0755 ${WORKDIR}/trousers.init.sh ${D}${sysconfdir}/init.d/trousers
+        install -d ${D}${sysconfdir}/udev/rules.d
+        install -m 0644 ${WORKDIR}/trousers-udev.rules ${D}${sysconfdir}/udev/rules.d/45-trousers.rules
 }
