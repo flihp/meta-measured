@@ -12,6 +12,7 @@ IMAGE_INSTALL = "packagegroup-tboot"
 SYSLINUX_TIMEOUT = "10"
 SYSLINUX_LABEL = "boot"
 SYSLINUX_KERNEL_APPEND = "ramdisk_size=32768 root=/dev/ram0 rw console=tty0 console=ttyS0,115200n8"
+SYSLINUX_TBOOT_APPEND = "logging=serial,vga,memory"
 
 # images
 INITRD_IMAGE = "core-image-tpm-initramfs"
@@ -45,5 +46,5 @@ build_syslinux_cfg() {
 	echo PROMPT 1 >> ${SYSLINUXCFG}
 	echo LABEL ${SYSLINUX_LABEL} >> ${SYSLINUXCFG}
 	echo KERNEL mboot.c32 >> ${SYSLINUXCFG}
-	echo APPEND tboot.gz --- acm.bin --- vmlinuz ${SYSLINUX_KERNEL_APPEND} --- initrd >> ${SYSLINUXCFG}
+	echo APPEND tboot.gz ${SYSLINUX_TBOOT_APPEND} --- vmlinuz ${SYSLINUX_KERNEL_APPEND} --- initrd --- acm.bin >> ${SYSLINUXCFG}
 }
