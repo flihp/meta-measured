@@ -4,9 +4,7 @@ DESCRIPTION = "Small image capable of booting a device. Trousers daemon and \
 tpm-tools are included for measured launch of root files sytem."
 
 IMAGE_INSTALL = " \
-    initramfs-live-boot \
-    initramfs-live-install \
-    initramfs-live-install-efi \
+    initramfs-boot \
     busybox \
     udev \
     base-passwd \
