@@ -1,6 +1,5 @@
 meta-measured
-============
-
+-------------
 This layer's purpose is constructing a linux system that performs a 'measured launch'. This requires enabling support for:
 - the TPM and Intel TXT (kernel config / module)
 - the TCG Software Stack (through TrouSerS)
@@ -11,17 +10,14 @@ status
 Dec 29, 2012 - Bootable hddimg with tboot for SugarBay BSP.
 Oct 21, 2012 - Initial checkin.
 
-
 Dependencies
 ------------
-
 This layer depends on the openembedded metadata and bitbake.
 
 Maintenance
 -----------
 Please see the MAINTAINERS file for information on contacting the maintainers
 of this layer, as well as instructions for submitting patches.
-
 
 Building the meta-measured layer
 -------------------------------
@@ -31,7 +27,6 @@ and use that to set up bitbake and the basic OE metadata for you.
 
 License
 -------
-
 All metadata is MIT licensed unless otherwise stated. Source code included
 in tree for individual recipes is under the LICENSE stated in each recipe
 (.bb file) unless otherwise stated.
