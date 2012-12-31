@@ -1,10 +1,14 @@
-meta-tpm
+meta-measured
 ============
 
-This layer's purpose is enabling support for various TCG specified software.
+This layer's purpose is constructing a linux system that performs a 'measured launch'. This requires enabling support for:
+- the TPM and Intel TXT (kernel config / module)
+- the TCG Software Stack (through TrouSerS)
+- tboot and Authenticated Code Modules (ACMs)
 
 status
 ------
+Dec 29, 2012 - Bootable hddimg with tboot for SugarBay BSP.
 Oct 21, 2012 - Initial checkin.
 
 
@@ -19,8 +23,11 @@ Please see the MAINTAINERS file for information on contacting the maintainers
 of this layer, as well as instructions for submitting patches.
 
 
-Building the meta-tpm layer
+Building the meta-measured layer
 -------------------------------
+Enable this layer like you enable any other layer.  If you wish to build the
+reference images you can clone the 'measured-build-scripts' repo from my github
+and use that to set up bitbake and the basic OE metadata for you.
 
 License
 -------
