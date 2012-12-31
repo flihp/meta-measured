@@ -4,7 +4,7 @@ DESCRIPTION = "Small image capable of booting a device. Trousers daemon and \
 tpm-tools are included for measured launch of root files sytem."
 
 IMAGE_INSTALL = " \
-    initramfs-boot \
+    initramfs-boot-tpm \
     busybox \
     udev \
     base-passwd \
