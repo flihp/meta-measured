@@ -1,6 +1,7 @@
 This file contains a list of maintainers for the meta-tpm layer.
 
-Please submit any patches against meta-tpm directly to the maintainer.
+Please submit any patches against meta-measured directly to the maintainer or
+issue pull request through github.
 
 Descriptions of section entries:
 
@@ -17,5 +18,5 @@ Maintainers List (try to look for most precise areas first)
 
 COMMON
 M:	Philip Tricca <flihp@twobit.us>
-F:	conf
-F:	recipes-*
+F:	conf/
+F:	recipes-*/
