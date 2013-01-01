@@ -21,7 +21,6 @@ early_setup () {
 tss_setup () {
     modprobe -i tpm-tis
     # tcsd needs loopback networking
-    echo "127.0.0.1	localhost" > /etc/hosts
     if ! ip addr add 127.0.0.1/8 dev lo ; then
 	fatal "failed to give loopback a localhost address"
     fi
