@@ -17,7 +17,6 @@ SYSLINUX_TBOOT_APPEND = "logging=serial,vga,memory"
 # images
 INITRD_IMAGE = "core-image-tpm-initramfs"
 INITRD = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
-NOISO = "1"
 
 # HDDDIMG = "${S}/hddimg"
 
@@ -29,6 +28,10 @@ inherit bootimg
 # have syslinux populate function install mboot.c32 for multiboot
 syslinux_populate_append() {
 	install -m 0444 ${STAGING_LIBDIR}/syslinux/mboot.c32 ${HDDDIR}${SYSLINUXDIR}/mboot.c32
+}
+
+syslinux_iso_populate_append() {
+	install -m 0444 ${STAGING_LIBDIR}/syslinux/mboot.c32 ${ISODIR}${ISOLINUXDIR}
 }
 
 # have bootimg populate function grab tboot and ACM
@@ -47,5 +50,5 @@ build_syslinux_cfg() {
 	echo PROMPT 1 >> ${SYSLINUXCFG}
 	echo LABEL ${SYSLINUX_LABEL} >> ${SYSLINUXCFG}
 	echo KERNEL mboot.c32 >> ${SYSLINUXCFG}
-	echo APPEND tboot.gz ${SYSLINUX_TBOOT_APPEND} --- vmlinuz ${SYSLINUX_KERNEL_APPEND} --- initrd --- acm_snb.bin --- acm_ivb.bin >> ${SYSLINUXCFG}
+	echo APPEND /tboot.gz ${SYSLINUX_TBOOT_APPEND} --- /vmlinuz ${SYSLINUX_KERNEL_APPEND} --- /initrd --- /acm_snb.bin --- /acm_ivb.bin >> ${SYSLINUXCFG}
 }
