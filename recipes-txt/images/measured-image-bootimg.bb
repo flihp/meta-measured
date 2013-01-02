@@ -18,17 +18,13 @@ SYSLINUX_TBOOT_APPEND = "logging=serial,vga,memory"
 INITRD_IMAGE = "core-image-tpm-initramfs"
 INITRD = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
 
+NOHDIMG = "1"
 # HDDDIMG = "${S}/hddimg"
 
 do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
 
 inherit core-image
 inherit bootimg
-
-# have syslinux populate function install mboot.c32 for multiboot
-syslinux_populate_append() {
-	install -m 0444 ${STAGING_LIBDIR}/syslinux/mboot.c32 ${HDDDIR}${SYSLINUXDIR}/mboot.c32
-}
 
 syslinux_iso_populate_append() {
 	install -m 0444 ${STAGING_LIBDIR}/syslinux/mboot.c32 ${ISODIR}${ISOLINUXDIR}
