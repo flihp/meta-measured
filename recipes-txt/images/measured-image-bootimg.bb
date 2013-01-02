@@ -40,7 +40,7 @@ populate_append() {
 # syslinux.bbclass can't deal with mboot.c32 configs
 build_syslinux_cfg() {
 	echo ALLOWOPTIONS 1 > ${SYSLINUXCFG}
-	echo SERIAL 0 115200 > ${SYSLINUXCFG}
+	echo SERIAL 0 115200 >> ${SYSLINUXCFG}
 	echo DEFAULT ${SYSLINUX_LABEL} >> ${SYSLINUXCFG}
 	echo TIMEOUT ${SYSLINUX_TIMEOUT} >> ${SYSLINUXCFG}
 	echo PROMPT 1 >> ${SYSLINUXCFG}
