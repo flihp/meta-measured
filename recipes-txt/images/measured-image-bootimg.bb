@@ -35,6 +35,7 @@ syslinux_populate_append() {
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_snb.bin ${DEST}/acm_snb.bin
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_ivb.bin ${DEST}/acm_ivb.bin
 }
 
 # syslinux.bbclass can't deal with mboot.c32 configs
@@ -46,5 +47,5 @@ build_syslinux_cfg() {
 	echo PROMPT 1 >> ${SYSLINUXCFG}
 	echo LABEL ${SYSLINUX_LABEL} >> ${SYSLINUXCFG}
 	echo KERNEL mboot.c32 >> ${SYSLINUXCFG}
-	echo APPEND tboot.gz ${SYSLINUX_TBOOT_APPEND} --- vmlinuz ${SYSLINUX_KERNEL_APPEND} --- initrd --- acm_snb.bin >> ${SYSLINUXCFG}
+	echo APPEND tboot.gz ${SYSLINUX_TBOOT_APPEND} --- vmlinuz ${SYSLINUX_KERNEL_APPEND} --- initrd --- acm_snb.bin --- acm_ivb.bin >> ${SYSLINUXCFG}
 }
