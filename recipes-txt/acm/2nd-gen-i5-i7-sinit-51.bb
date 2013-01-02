@@ -19,4 +19,4 @@ SRC_URI[sha256sum] = "8b5c39a489a57f51415fd1da14a4d357f254241fa3c2d4c1394d89bfb8
 
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 SRC_FILE="2nd_gen_i5_i7_SINIT_51.BIN"
-DST_FILE="acm.bin"
+DST_FILE="acm_snb.bin"
