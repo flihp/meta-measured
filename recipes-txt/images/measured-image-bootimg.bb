@@ -31,8 +31,7 @@ syslinux_iso_populate_append() {
 # have bootimg populate function grab tboot and ACM
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_snb.bin ${DEST}/acm_snb.bin
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_ivb.bin ${DEST}/acm_ivb.bin
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_*.bin ${DEST}/
 }
 
 # syslinux.bbclass can't deal with mboot.c32 configs
