@@ -10,11 +10,14 @@ IMAGE_INSTALL = "packagegroup-tboot"
 
 SYSLINUX_TIMEOUT = "10"
 SYSLINUX_LABEL = "boot"
-SYSLINUX_KERNEL_APPEND = "ramdisk_size=32768 root=/dev/ram0 rw console=tty0 console=ttyS0,115200n8"
+SYSLINUX_KERNEL_APPEND = "ramdisk_size=32768 root=/dev/ram0 rw rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8 "
 SYSLINUX_TBOOT_APPEND = "logging=serial,vga,memory"
 
 INITRD_IMAGE = "core-image-tpm-initramfs"
 INITRD = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
+
+ROOTFS_IMAGE = "core-image-tpm"
+ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"
 
 NOHDIMG = "1"
 
