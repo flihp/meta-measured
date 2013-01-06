@@ -9,6 +9,7 @@ IMAGE_INSTALL = " \
     udev \
     base-passwd \
     packagegroup-tpm \
+    coreutils \
     "
 
 # Do not pollute the initrd image with rootfs features
