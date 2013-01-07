@@ -21,8 +21,9 @@ ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"
 
 NOHDIMG = "1"
 
-# be sure the bootimg is built after the initrd rootfs
+# be sure the bootimg is built after the initrd and rootfs
 do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
+do_bootimg[depends] += "${ROOTFS_IMAGE}:do_rootfs"
 
 inherit core-image
 inherit bootimg
