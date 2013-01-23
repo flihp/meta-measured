@@ -33,7 +33,36 @@ do_install() {
     oe_runmake DISTIR="${D}" DISTDIR="${D}" install
 }
 
+PROVIDES += "${PACKAGES}"
+PACKAGES += " \
+    ${PN}-grub \
+    ${PN}-lcptools \
+    ${PN}-tb_polgen \
+    ${PN}-utils \
+"
+FILES_${PN} = "${base_prefix}/boot/tboot.gz"
 FILES_${PN}-dbg += "${base_prefix}/boot/tboot-syms"
+FILES_${PN}-grub = "${sysconfdir}/grub.d"
+FILES_${PN}-lcptools = " \
+    ${sbindir}/lcp_crtpconf \
+    ${sbindir}/lcp_crtpol \
+    ${sbindir}/lcp_crtpol2 \
+    ${sbindir}/lcp_crtpolelt \
+    ${sbindir}/lcp_crtpollist \
+    ${sbindir}/lcp_readpol \
+    ${sbindir}/lcp_mlehash \
+    ${sbindir}/lcp_writepol \
+    ${sbindir}/tpmnv_defindex \
+    ${sbindir}/tpmnv_getcap \
+    ${sbindir}/tpmnv_lock \
+    ${sbindir}/tpmnv_relindex \
+"
+FILES_${PN}-tbpolgen = "${sbindir}/tb_polgen"
+FILES_${PN}-utils = " \
+    ${sbindir}/acminfo \
+    ${sbindir}/parse_err \
+    ${sbindir}/txt-stat \
+"
 
 sysroot_stage_all_append() {
 	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
