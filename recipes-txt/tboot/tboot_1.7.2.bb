@@ -38,7 +38,7 @@ PROVIDES += "${PACKAGES}"
 PACKAGES += " \
     ${PN}-grub \
     ${PN}-lcptools \
-    ${PN}-tb_polgen \
+    ${PN}-tbpolgen \
     ${PN}-utils \
 "
 FILES_${PN} = "${base_prefix}/boot/tboot.gz"
