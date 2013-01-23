@@ -11,6 +11,7 @@ SRC_URI += " \
     http://downloads.sourceforge.net/project/tboot/tboot/tboot-1.7.2.tar.gz \
     file://tboot-cross-compile.patch \
     file://tboot-tb_polgen-params-print-type.patch \
+    file://no-install-strip.patch \
 "
 
 SRC_URI[md5sum] = "c8f981e5ee0a36a033e96383835c603b"
