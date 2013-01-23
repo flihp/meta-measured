@@ -38,7 +38,6 @@ build_syslinux_cfg () {
 	echo "DEFAULT boot" >> ${SYSLINUXCFG}
 	echo "TIMEOUT 10" >> ${SYSLINUXCFG}
 	echo "PROMPT 1" >> ${SYSLINUXCFG}
-	echo "DISPLAY menu" >> ${SYSLINUXCFG}
 	echo "LABEL boot" >> ${SYSLINUXCFG}
 	echo "  KERNEL mboot.c32" >> ${SYSLINUXCFG}
 	echo "  APPEND /tboot.gz logging=serial,vga,memory --- /vmlinuz ramdisk_size=32768 root=/dev/ram0 rw rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8 --- /initrd --- /acm_snb.bin --- /acm_ivb.bin" >> ${SYSLINUXCFG}
