@@ -24,7 +24,7 @@ inherit core-image
 inherit bootimg
 
 syslinux_iso_populate_append() {
-	install -m 0444 ${STAGING_LIBDIR}/syslinux/mboot.c32 ${ISODIR}${ISOLINUXDIR}
+	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 ${ISODIR}${ISOLINUXDIR}
 }
 
 # have bootimg populate function grab tboot and ACM
