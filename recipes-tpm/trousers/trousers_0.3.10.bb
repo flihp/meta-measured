@@ -36,10 +36,10 @@ FILES_libtspi = " \
 	"
 FILES_libtspi-dbg = " \
 	${libdir}/.debug \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tspi \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/trspi \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/include/*.h \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/include/tss \ 
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tspi \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/trspi \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/include/*.h \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/include/tss \
 	"
 FILES_libtspi-dev = " \
 	${includedir} \
@@ -60,11 +60,11 @@ FILES_${PN} = " \
 	"
 FILES_${PN}-dbg = " \
 	${sbindir}/.debug \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tcs \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tcsd \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/tddl \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/trousers \
-	${prefix}/src/debug/${PN}-${PV}-${PR}/${PN}-${PV}/src/include/trousers \ 
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tcs \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tcsd \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tddl \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/trousers \
+	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/include/trousers \
 	"
 FILES_${PN}-doc = " \
 	${mandir}/man5 \
