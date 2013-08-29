@@ -1,4 +1,5 @@
 # bootable image with tboot
+BBPATH += ""
 
 LICENSE = "MIT"
 LIC_FILES_CHKSUM = " \
@@ -6,7 +7,7 @@ LIC_FILES_CHKSUM = " \
     file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420 \
     "
 
-IMAGE_INSTALL += "packagegroup-tboot"
+IMAGE_INSTALL += "base-passwd packagegroup-tboot"
 
 INITRD_IMAGE ?= "core-image-tpm-initramfs"
 INITRD = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
