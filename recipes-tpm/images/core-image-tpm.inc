@@ -6,9 +6,11 @@ LICENSE = "MIT"
 
 IMAGE_INSTALL += "\
 	${CORE_IMAGE_BASE_INSTALL} \
-	packagegroup-core-basic \
+	packagegroup-core-boot \
 	packagegroup-tpm \
 	packagegroup-tboot \
+	kmod \
+	udev-extraconf \
 "
 
 inherit core-image

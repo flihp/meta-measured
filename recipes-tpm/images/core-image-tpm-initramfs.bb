@@ -7,9 +7,11 @@ IMAGE_INSTALL = " \
     initramfs-boot-tpm \
     busybox \
     udev \
+    udev-extraconf \
     base-passwd \
     packagegroup-tpm \
     coreutils \
+    kmod \
     "
 
 # Do not pollute the initrd image with rootfs features
