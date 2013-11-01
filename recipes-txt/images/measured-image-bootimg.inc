@@ -32,6 +32,7 @@ syslinux_iso_populate_append() {
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
 	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 ${DEST}
+	install -m 0444 ${STAGING_DATADIR}/syslinux/libcom32.c32 ${DEST}
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_*.bin ${DEST}/
 }
 
