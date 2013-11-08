@@ -24,15 +24,19 @@ do_bootimg[depends] += "${ROOTFS_IMAGE}:do_rootfs"
 inherit core-image
 inherit bootimg
 
+syslinux_hddimg_populate_append() {
+	install -m 0444 ${STAGING_DATADIR}/syslinux/libcom32.c32 $hdd_dir${SYSLINUXDIR}
+	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 $hdd_dir${SYSLINUXDIR}
+}
+
 syslinux_iso_populate_append() {
-	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 ${ISODIR}${ISOLINUXDIR}
+	install -m 0444 ${STAGING_DATADIR}/syslinux/libcom32.c32 $iso_dir${ISOLINUXDIR}
+	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 $iso_dir${ISOLINUXDIR}
 }
 
 # have bootimg populate function grab tboot and ACM
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
-	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 ${DEST}
-	install -m 0444 ${STAGING_DATADIR}/syslinux/libcom32.c32 ${DEST}
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_*.bin ${DEST}/
 }
 
