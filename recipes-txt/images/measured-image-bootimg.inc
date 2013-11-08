@@ -15,7 +15,7 @@ INITRD = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
 ROOTFS_IMAGE ?= "core-image-tpm"
 ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"
 
-NOHDIMG = "1"
+NOHDD = "1"
 
 # be sure the bootimg is built after the initrd and rootfs
 do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
