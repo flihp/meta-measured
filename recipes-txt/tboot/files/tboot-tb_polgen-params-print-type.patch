@@ -1,7 +1,5 @@
-Index: tboot-1.7.2/tb_polgen/param.c
-===================================================================
---- tboot-1.7.2.orig/tb_polgen/param.c
-+++ tboot-1.7.2/tb_polgen/param.c
+--- a/tb_polgen/param.c
++++ b/tb_polgen/param.c
 @@ -184,7 +184,7 @@ void print_params(param_data_t *params)
      info_msg("\t pcr = %d\n", params->pcr);
      info_msg("\t hash_type = %d\n", params->hash_type);
