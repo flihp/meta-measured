@@ -5,6 +5,7 @@
 include acm.inc
 
 SUMMARY = "ACM for Intel Ivy Bridge (IVB) machines"
+
 LIC_FILES_CHKSUM = "file://license.txt;md5=a879c484244808a2202d65166a2f3f72"
 
 S = "${WORKDIR}/3rd_gen_i5_i7-SINIT_${PV}"
