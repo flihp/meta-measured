@@ -34,6 +34,28 @@ syslinux_iso_populate_append() {
 	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 $iso_dir${ISOLINUXDIR}
 }
 
+grubefi_populate_append () {
+	MOD_DIR="${DEST}${EFIDIR}/${BUILD_ARCH}-efi"
+	install -d 0755 ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/multiboot2.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/relocator.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/acpi.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/gzio.mod ${MOD_DIR}
+}
+
+grubefi_iso_populate() {
+	iso_dir=$1
+	grubefi_populate $iso_dir
+	# Build a EFI directory to create efi.img
+	mkdir -p ${EFIIMGDIR}/${EFIDIR}
+	cp -dr $iso_dir/${EFIDIR}/* ${EFIIMGDIR}${EFIDIR}
+	cp $iso_dir/vmlinuz ${EFIIMGDIR}
+	echo "${GRUB_IMAGE}" > ${EFIIMGDIR}/startup.nsh
+	if [ -f "$iso_dir/initrd" ] ; then
+		cp $iso_dir/initrd ${EFIIMGDIR}
+	fi
+}
+
 # have bootimg populate function grab tboot and ACM
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
@@ -48,4 +70,23 @@ build_syslinux_cfg () {
 	echo "LABEL boot" >> ${SYSLINUXCFG}
 	echo "  KERNEL mboot.c32" >> ${SYSLINUXCFG}
 	echo "  APPEND /tboot.gz logging=serial,vga,memory --- /vmlinuz ramdisk_size=32768 root=/dev/ram0 rw rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8 --- /initrd --- /acm_snb.bin --- /acm_ivb.bin" >> ${SYSLINUXCFG}
+}
+
+build_grub_cfg() {
+	{
+		echo "serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1"
+		echo "default=boot"
+		echo "timeout=10"
+		echo ""
+		echo "insmod multiboot2"
+		echo "insmod relocator"
+		echo "insmod gzio"
+		echo ""
+		echo "menuentry 'boot'{"
+		echo "multiboot2 /tboot.gz loglvl=all logging=serial,vga,memory vga_delay=10 loglvl=all"
+		echo "module2 /vmlinuz ramdisk_size=32768 root=/dev/ram0 rw rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8"
+		echo "module2 /initrd"
+		echo "module2 /acm_ivb.bin"
+		echo "}"
+	} > ${GRUBCFG}
 }
