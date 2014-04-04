@@ -7,6 +7,18 @@ LIC_FILES_CHKSUM = " \
     file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420 \
     "
 
+SRC_URI = " \
+    file://syslinux.cfg;md5=96ae2e958e816dd58aff42716036251e \
+"
+
+# fetch/unpack tasks don't normally run for image recipes. This means our
+# bootloader configs won't end up in WORKDIR unless we do some magic here.
+python () {
+	# Ensure we run these usually noexec tasks
+	d.delVarFlag("do_fetch", "noexec")
+	d.delVarFlag("do_unpack", "noexec")
+}
+
 IMAGE_INSTALL += "base-passwd packagegroup-tboot"
 
 INITRD_IMAGE ?= "core-image-tpm-initramfs"
@@ -63,13 +75,7 @@ populate_append() {
 }
 
 build_syslinux_cfg () {
-	echo "ALLOWOPTIONS 1" > ${SYSLINUXCFG}
-	echo "DEFAULT boot" >> ${SYSLINUXCFG}
-	echo "TIMEOUT 10" >> ${SYSLINUXCFG}
-	echo "PROMPT 1" >> ${SYSLINUXCFG}
-	echo "LABEL boot" >> ${SYSLINUXCFG}
-	echo "  KERNEL mboot.c32" >> ${SYSLINUXCFG}
-	echo "  APPEND /tboot.gz logging=serial,vga,memory --- /vmlinuz ramdisk_size=32768 root=/dev/ram0 rw rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8 --- /initrd --- /acm_snb.bin --- /acm_ivb.bin" >> ${SYSLINUXCFG}
+	cp ${WORKDIR}/syslinux.cfg ${SYSLINUXCFG}
 }
 
 build_grub_cfg() {
