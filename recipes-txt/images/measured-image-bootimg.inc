@@ -49,10 +49,23 @@ syslinux_iso_populate_append() {
 grubefi_populate_append () {
 	MOD_DIR="${DEST}${EFIDIR}/${BUILD_ARCH}-efi"
 	install -d 0755 ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/echo.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/terminal.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/terminfo.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/efi_gop.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/efi_uga.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/echo.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/gfxterm.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/bitmap_scale.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/gfxmenu.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/trig.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/font.mod ${MOD_DIR}
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/multiboot2.mod ${MOD_DIR}
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/relocator.mod ${MOD_DIR}
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/acpi.mod ${MOD_DIR}
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/gzio.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/serial.mod ${MOD_DIR}
+	install -m 0644 ${DEPLOY_DIR_IMAGE}/unicode.pf2 ${DEST}
 }
 
 grubefi_iso_populate() {
