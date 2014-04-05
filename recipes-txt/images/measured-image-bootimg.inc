@@ -9,6 +9,7 @@ LIC_FILES_CHKSUM = " \
 
 SRC_URI = " \
     file://syslinux.cfg;md5=96ae2e958e816dd58aff42716036251e \
+    file://grub.cfg;md5=9335962dbe95e118ec3013215577ab40 \
 "
 
 # fetch/unpack tasks don't normally run for image recipes. This means our
@@ -92,20 +93,5 @@ build_syslinux_cfg () {
 }
 
 build_grub_cfg() {
-	{
-		echo "serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1"
-		echo "default=boot"
-		echo "timeout=10"
-		echo ""
-		echo "insmod multiboot2"
-		echo "insmod relocator"
-		echo "insmod gzio"
-		echo ""
-		echo "menuentry 'boot'{"
-		echo "multiboot2 /tboot.gz loglvl=all logging=serial,vga,memory vga_delay=10 loglvl=all"
-		echo "module2 /vmlinuz ramdisk_size=32768 root=/dev/ram0 rw rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8"
-		echo "module2 /initrd"
-		echo "module2 /acm_ivb.bin"
-		echo "}"
-	} > ${GRUBCFG}
+	cp ${WORKDIR}/grub.cfg ${GRUBCFG}
 }
