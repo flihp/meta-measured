@@ -14,6 +14,5 @@ RDEPENDS_packagegroup-tpm = "\
     kernel-module-tpm-tis \
     kernel-module-tpm-nsc \
     kernel-module-tpm-atmel \
-    kernel-module-tpm-bios \
     kernel-module-tpm-infineon \
     "
