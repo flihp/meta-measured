@@ -92,6 +92,6 @@ build_syslinux_cfg () {
 	cp ${WORKDIR}/syslinux.cfg ${SYSLINUXCFG}
 }
 
-build_grub_cfg() {
+build_efi_cfg() {
 	cp ${WORKDIR}/grub.cfg ${GRUBCFG}
 }
