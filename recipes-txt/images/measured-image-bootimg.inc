@@ -47,41 +47,6 @@ syslinux_iso_populate_append() {
 	install -m 0444 ${STAGING_DATADIR}/syslinux/mboot.c32 $iso_dir${ISOLINUXDIR}
 }
 
-grubefi_populate_append () {
-	MOD_DIR="${DEST}${EFIDIR}/${BUILD_ARCH}-efi"
-	install -d 0755 ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/echo.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/terminal.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/terminfo.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/efi_gop.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/efi_uga.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/echo.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/gfxterm.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/bitmap_scale.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/gfxmenu.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/trig.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/font.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/multiboot2.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/relocator.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/acpi.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/gzio.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/serial.mod ${MOD_DIR}
-	install -m 0644 ${DEPLOY_DIR_IMAGE}/unicode.pf2 ${DEST}
-}
-
-grubefi_iso_populate() {
-	iso_dir=$1
-	grubefi_populate $iso_dir
-	# Build a EFI directory to create efi.img
-	mkdir -p ${EFIIMGDIR}/${EFIDIR}
-	cp -dr $iso_dir/${EFIDIR}/* ${EFIIMGDIR}${EFIDIR}
-	cp $iso_dir/vmlinuz ${EFIIMGDIR}
-	echo "${GRUB_IMAGE}" > ${EFIIMGDIR}/startup.nsh
-	if [ -f "$iso_dir/initrd" ] ; then
-		cp $iso_dir/initrd ${EFIIMGDIR}
-	fi
-}
-
 # have bootimg populate function grab tboot and ACM
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
