@@ -37,12 +37,20 @@ fatal_prod() {
 [ ! -x $MOUNT ]    && fatal "No mount command."
 [ ! -x $SLEEP ]    && fatal "No sleep command."
 
+makedir () {
+    for DIR in $@; do
+        if [ ! -e $DIR ]; then
+            $MKDIR -p $DIR
+        fi
+    done
+}
+
 early_setup () {
-    $MKDIR /proc /sys
+    makedir /proc /sys
     $MOUNT -t proc proc /proc
     $MOUNT -t sysfs sysfs /sys
 
-    $MKDIR /tmp /run
+    makedir /tmp /run
     $LN -s /run /var/run
 }
 
@@ -125,9 +133,7 @@ mount_rootimg() {
     [ -z $root_img ] && fatal "no image file passed to mount_rootimg"
     [ -z $root_mnt ] && fatal "no mount point passed to mount_rootimg "
 
-    [ ! -d $root_mnt ]   && $MKDIR -p $root_mnt
-    [ ! -d $cow_mnt ]    && $MKDIR -p $cow_mnt
-    [ ! -d $rootro_mnt ] && $MKDIR -p $rootro_mnt
+    makedir $root_mnt $cow_mnt $rootro_mnt
     [ ! -b $loop_dev ]   && $MKNOD $loop_dev b 7 0
 
     if ! $MOUNT -o ro,loop,noatime,nodiratime $root_img $rootro_mnt ; then
