@@ -23,7 +23,12 @@ IMAGE_LINGUAS = ""
 LICENSE = "MIT"
 
 IMAGE_FSTYPES = "${INITRAMFS_FSTYPES}"
-ROOTFS_POSTPROCESS_COMMAND += "echo "127.0.0.1	localhost" > ${IMAGE_ROOTFS}/${sysconfdir}/hosts;"
+
+add_localhost () {
+    echo "127.0.0.1	localhost" >> ${IMAGE_ROOTFS}/${sysconfdir}/hosts
+}
+
+ROOTFS_POSTPROCESS_COMMAND += "add_localhost;"
 inherit core-image
 
 IMAGE_ROOTFS_SIZE = "8192"
