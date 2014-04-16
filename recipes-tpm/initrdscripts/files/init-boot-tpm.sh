@@ -19,12 +19,19 @@ SLEEP=$(which sleep)
 fatal() {
     echo $1 >$CONSOLE
     echo >$CONSOLE
-    exec sh
+    PS1='measured# ' exec sh
 }
 # production logging failure sequence (no shell)
 fatal_prod() {
     echo $1 >$CONSOLE
     echo >$CONSOLE
+}
+
+# break points for debugging
+maybe_break () {
+    if [ "${BREAK:-}" = "$1" ]; then
+        fatal "Spawning shell at breakpoint: '$1' ..."
+    fi
 }
 
 # sanity
@@ -96,6 +103,9 @@ read_args() {
                 else
                     console_params="$console_params $arg"
                 fi
+                ;;
+            break=*)
+                BREAK=$optarg ;;
         esac
     done
 }
@@ -187,14 +197,19 @@ boot_root() {
 }
 
 early_setup
-tss_setup
 read_args
+maybe_break "tss-setup"
+tss_setup
 
+maybe_break "find-rootimg"
 find_rootimg $ROOT_IMAGE
+maybe_break "measure-root"
 if [ ! -z ${ROOT_MEASURE} ]; then
 	measure_file $ROOT_IMAGE_PATH $ROOT_IMAGE_PCR
 fi
+maybe_break "mount-rootimg"
 mount_rootimg $ROOT_IMAGE_PATH $ROOT_MOUNT
+maybe_break "boot-root"
 boot_root $ROOT_MOUNT
 
 # fall through == failure
