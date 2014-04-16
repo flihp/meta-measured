@@ -84,6 +84,8 @@ read_args() {
                 ROOT_MODE=$ARG ;;
             root=*)
                 ROOT_DEVICE=$optarg ;;
+            measureroot)
+                ROOT_MEASURE=true ;;
             rootimg=*)
                 ROOT_IMAGE=$optarg ;;
             rootimgpcr=*)
@@ -189,7 +191,9 @@ tss_setup
 read_args
 
 find_rootimg $ROOT_IMAGE
-measure_file $ROOT_IMAGE_PATH $ROOT_IMAGE_PCR
+if [ ! -z ${ROOT_MEASURE} ]; then
+	measure_file $ROOT_IMAGE_PATH $ROOT_IMAGE_PCR
+fi
 mount_rootimg $ROOT_IMAGE_PATH $ROOT_MOUNT
 boot_root $ROOT_MOUNT
 
