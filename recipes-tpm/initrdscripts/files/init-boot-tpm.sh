@@ -81,7 +81,7 @@ read_args() {
             ro)
                 ROOT_MODE=$arg ;;
             rw)
-                ROOT_MODE=$ARG ;;
+                ROOT_MODE=$arg ;;
             root=*)
                 ROOT_DEVICE=$optarg ;;
             measureroot)
@@ -138,7 +138,7 @@ mount_rootimg() {
     makedir $root_mnt $cow_mnt $rootro_mnt
     [ ! -b $loop_dev ]   && $MKNOD $loop_dev b 7 0
 
-    if ! $MOUNT -o ro,loop,noatime,nodiratime $root_img $rootro_mnt ; then
+    if ! $MOUNT -o ${ROOT_MODE},loop,noatime,nodiratime $root_img $rootro_mnt ; then
         fatal "Failed to mount rootfs image."
     fi
     if ! $MOUNT -t tmpfs -o rw,noatime,mode=755 tmpfs $cow_mnt ; then
