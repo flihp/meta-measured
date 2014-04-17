@@ -133,29 +133,18 @@ find_rootimg() {
 }
 
 # mount supplied fs image on supplied directory
-#   fs image is mounted read only, a tmpfs is created as well
-#   the two are mounted in a unionfs with the tmpfs acting as a sort-of COW
 mount_rootimg() {
     local root_img=$1
     local root_mnt=$2
     local loop_dev=/dev/loop0
-    local cow_mnt=/mnt/cow
-    local rootro_mnt=/mnt/root-ro
 
     [ -z $root_img ] && fatal "no image file passed to mount_rootimg"
     [ -z $root_mnt ] && fatal "no mount point passed to mount_rootimg "
 
-    makedir $root_mnt $cow_mnt $rootro_mnt
+    makedir $root_mnt
     [ ! -b $loop_dev ]   && $MKNOD $loop_dev b 7 0
-
-    if ! $MOUNT -o ${ROOT_MODE},loop,noatime,nodiratime $root_img $rootro_mnt ; then
+    if ! $MOUNT -o ${ROOT_MODE},loop,noatime,nodiratime $root_img $root_mnt ; then
         fatal "Failed to mount rootfs image."
-    fi
-    if ! $MOUNT -t tmpfs -o rw,noatime,mode=755 tmpfs $cow_mnt ; then
-        fatal "Failed to mount tmpfs to back rootfs union."
-    fi
-    if ! $MOUNT -t aufs -o dirs=$cow_mnt=rw:$rootro_mnt=ro none $root_mnt ; then
-        fatal "Failed to mount union between $root_img and tmpfs at $cow_mnt."
     fi
 }
 

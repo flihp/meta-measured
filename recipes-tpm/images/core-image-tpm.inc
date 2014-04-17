@@ -1,6 +1,6 @@
 DESCRIPTION = "Image with Trousers daemon." 
 
-IMAGE_FEATURES += "ssh-server-openssh"
+IMAGE_FEATURES += "ssh-server-openssh read-only-rootfs"
 
 LICENSE = "MIT"
 
