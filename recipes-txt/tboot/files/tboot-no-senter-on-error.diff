@@ -1,0 +1,25 @@
+This patch causes tboot to launch the kernel very early on if there is a TXT
+error code set on the previous boot. This prevents an infinite boot loop when
+an error occurs. This isn't a security issue (I think) as the TXT hardware
+invalidates dynamic PCRs when the measured launch doesn't succeed.
+
+Signed-off-by: Philip Tricca <flihp@twobit.us>
+
+--- a/tboot/common/tboot.c
++++ b/tboot/common/tboot.c
+@@ -435,10 +435,12 @@ void begin_launch(void *addr, uint32_t m
+ 
+     /* check for error from previous boot */
+     printk(TBOOT_INFO"checking previous errors on the last boot.\n\t");
+-    if ( was_last_boot_error() )
+-        printk(TBOOT_INFO"last boot has error.\n");
+-    else
++    if ( was_last_boot_error() ) {
++        printk(TBOOT_INFO"last boot has error, booting kernel...\n");
++        launch_kernel(false);
++    } else {
+         printk(TBOOT_INFO"last boot has no error.\n");
++    }
+ 
+     if ( !prepare_tpm() )
+         apply_policy(TB_ERR_TPM_NOT_READY);

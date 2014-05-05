@@ -12,6 +12,7 @@ SRC_URI += " \
     file://tboot-cross-compile.patch \
     file://tboot-tb_polgen-params-print-type.patch \
     file://no-install-strip.patch \
+    file://tboot-no-senter-on-error.diff \
 "
 
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
