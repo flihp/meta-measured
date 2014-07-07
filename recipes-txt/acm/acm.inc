@@ -10,6 +10,12 @@ LICENSE = "binary"
 
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
+# The Intel site hides SINIT ACMs behind a "EULA wall". Mirroring them was
+#   less work than hacking a fetcher to side-step Intel's roadblock.
+SRC_URI += " \
+    http://www.openxt.org/mirror/${BP}.zip \
+    "
+
 do_install() {
     install -d ${D}/boot
     install -m 0644 ${S}/${SRC_FILE} ${D}/boot
