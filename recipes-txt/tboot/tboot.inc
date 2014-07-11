@@ -25,7 +25,7 @@ do_compile() {
         TMP_TARGET_ARCH="x86_64"
     fi
     oe_runmake SUBDIRS:=tboot CC="${HOST_PREFIX}gcc ${TOOLCHAIN_OPTIONS}" CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}" LDFLAGS="" CFLAGS=""
-    oe_runmake SUBDIRS:="lcptools tb_polgen utils docs" CFLAGS+="-std=c99" TARGET_ARCH="${TMP_TARGET_ARCH}"
+    oe_runmake SUBDIRS:="lcptools lcptools-v2 tb_polgen utils docs" CFLAGS+="-std=c99" TARGET_ARCH="${TMP_TARGET_ARCH}"
 }
 
 do_install() {
@@ -35,6 +35,7 @@ do_install() {
 PACKAGES += " \
     ${PN}-grub \
     ${PN}-lcptools \
+    ${PN}-lcptools-v2 \
     ${PN}-tbpolgen \
     ${PN}-utils \
 "
@@ -54,6 +55,12 @@ FILES_${PN}-lcptools = " \
     ${sbindir}/tpmnv_getcap \
     ${sbindir}/tpmnv_lock \
     ${sbindir}/tpmnv_relindex \
+"
+FILES_${PN}-lcptools-v2 = " \
+    ${sbindir}/lcp2_crtpol \
+    ${sbindir}/lcp2_crtpolelt \
+    ${sbindir}/lcp2_crtpollist \
+    ${sbindir}/lcp2_mlehash \
 "
 FILES_${PN}-tbpolgen = "${sbindir}/tb_polgen"
 FILES_${PN}-utils = " \
