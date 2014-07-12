@@ -29,7 +29,7 @@ do_compile() {
 }
 
 do_install() {
-    oe_runmake DISTIR="${D}" DISTDIR="${D}" install
+    oe_runmake DISTDIR="${D}" install
 }
 
 PACKAGES += " \
