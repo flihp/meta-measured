@@ -18,18 +18,18 @@ SRC_URI += " \
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
 do_compile() {
-    # keep the OE TARGET_ARCH from confusing tboots Makefiles
-    if [ "${TARGET_ARCH}" != "x86_64" ]; then
-        TMP_TARGET_ARCH="x86_32"
-    else
-        TMP_TARGET_ARCH="x86_64"
-    fi
-    oe_runmake SUBDIRS:=tboot CC="${HOST_PREFIX}gcc ${TOOLCHAIN_OPTIONS}" CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}" LDFLAGS="" CFLAGS=""
-    oe_runmake SUBDIRS:="lcptools lcptools-v2 tb_polgen utils docs" CFLAGS+="-std=c99" TARGET_ARCH="${TMP_TARGET_ARCH}"
+	# keep the OE TARGET_ARCH from confusing tboots Makefiles
+	if [ "${TARGET_ARCH}" != "x86_64" ]; then
+		TMP_TARGET_ARCH="x86_32"
+	else
+		TMP_TARGET_ARCH="x86_64"
+	fi
+	oe_runmake SUBDIRS:=tboot CC="${HOST_PREFIX}gcc ${TOOLCHAIN_OPTIONS}" CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}" LDFLAGS="" CFLAGS=""
+	oe_runmake SUBDIRS:="lcptools lcptools-v2 tb_polgen utils docs" CFLAGS+="-std=c99" TARGET_ARCH="${TMP_TARGET_ARCH}"
 }
 
 do_install() {
-    oe_runmake DISTDIR="${D}" install
+	oe_runmake DISTDIR="${D}" install
 }
 
 PACKAGES += " \
