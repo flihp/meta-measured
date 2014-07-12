@@ -34,6 +34,13 @@ do_install() {
 	oe_runmake DISTDIR="${D}" install
 }
 
+sysroot_stage_all_append() {
+	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
+
+	install -d ${DEPLOY_DIR_IMAGE}
+	install -m 0644 ${D}/boot/tboot.gz ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz
+}
+
 PACKAGES += " \
     ${PN}-grub \
     ${PN}-lcptools \
@@ -70,10 +77,3 @@ FILES_${PN}-utils = " \
     ${sbindir}/parse_err \
     ${sbindir}/txt-stat \
 "
-
-sysroot_stage_all_append() {
-	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
-
-	install -d ${DEPLOY_DIR_IMAGE}
-	install -m 0644 ${D}/boot/tboot.gz ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz
-}
