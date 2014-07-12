@@ -5,11 +5,6 @@ This layer's purpose is constructing a linux system that performs a 'measured la
 - the TCG Software Stack (through TrouSerS)
 - tboot and Authenticated Code Modules (ACMs)
 
-status
-------
-Dec 29, 2012 - Bootable hddimg with tboot for SugarBay BSP.
-Oct 21, 2012 - Initial checkin.
-
 Dependencies
 ------------
 This layer depends on the openembedded metadata and bitbake.
@@ -22,8 +17,9 @@ of this layer, as well as instructions for submitting patches.
 Building the meta-measured layer
 -------------------------------
 Enable this layer like you enable any other layer.  If you wish to build the
-reference images you can clone the 'measured-build-scripts' repo from my github
-and use that to set up bitbake and the basic OE metadata for you.
+reference images you can clone the 'oe-build-scripts' repo from my github and
+checkout the 'measured' branch to get my scripts that set up bitbake and the
+basic OE metadata for you.
 
 License
 -------
@@ -31,4 +27,4 @@ All metadata is MIT licensed unless otherwise stated. Source code included
 in tree for individual recipes is under the LICENSE stated in each recipe
 (.bb file) unless otherwise stated.
 
-This README document is Copyright (C) 2012 Philip Tricca <flihp@twobit.us>
+This README document is Copyright (C) 2014 Philip Tricca <flihp@twobit.us>
