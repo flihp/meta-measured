@@ -2,6 +2,7 @@ SUMMARY = "Multi-boot module to perform measured / verified launch using Intel (
 DESCRIPTION = " \
 Trusted Boot (tboot) is an open source, pre-kernel/VMM module that uses Intel(R) Trusted Execution Technology (Intel(R) TXT) to perform a measured and verified launch of an OS kernel/VMM. \
 "
+HOMEPAGE = "http://sourceforge.net/projects/tboot/"
 SECTION = "bootloaders"
 PR = "r0"
 LICENSE = "BSD"
