@@ -71,7 +71,7 @@ FILES_${PN}-doc = " \
 	${mandir}/man8 \
 	"
 
-inherit autotools useradd
+inherit autotools pkgconfig useradd
 
 EXTRA_OECONF="--with-gui=none"
 
