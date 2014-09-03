@@ -8,8 +8,8 @@ LIC_FILES_CHKSUM = " \
     "
 
 SRC_URI = " \
-    file://syslinux.cfg;md5=96ae2e958e816dd58aff42716036251e \
-    file://grub.cfg;md5=9335962dbe95e118ec3013215577ab40 \
+    file://syslinux.cfg;md5=7ae4fc16f1e54b4dc232e76ffd47b0d5 \
+    file://grub.cfg;md5=9b0245d085f18f5b93dea9ddc18c8174 \
 "
 
 # fetch/unpack tasks don't normally run for image recipes. This means our
