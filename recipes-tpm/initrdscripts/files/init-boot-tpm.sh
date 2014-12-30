@@ -118,9 +118,9 @@ find_rootimg() {
 
     echo "Searching for $rootimg in removable media ..."
     for i in $(seq 1 5); do
-        for device in `ls /media 2>/dev/null`; do
-            if [ -f /media/$device/$rootimg ] ; then
-                ROOT_IMAGE_PATH=/media/$device/$rootimg
+        for device in `ls /run/media 2>/dev/null`; do
+            if [ -f /run/media/$device/$rootimg ] ; then
+                ROOT_IMAGE_PATH=/run/media/$device/$rootimg
                 echo "found root image: $ROOT_IMAGE_PATH"
                 break
             fi
