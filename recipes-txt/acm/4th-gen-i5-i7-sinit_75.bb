@@ -1,7 +1,3 @@
-# Intel laywers have the download for the binary ACMs hidden behind a license
-# click through.  You'll have to manually download it and put it in your OE
-# download directory before this recipe will work.
-
 include acm.inc
 
 SUMMARY = "ACM for Intel Haswell (HSW) machines"
