@@ -6,7 +6,7 @@ information, please refer to \
 http://www.intel.com/technology/malwarereduction/index.htm \
   "
 SECTION = "tpm"
-LICENSE = "binary"
+LICENSE = "Proprietary"
 
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
