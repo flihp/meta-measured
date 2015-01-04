@@ -15,3 +15,5 @@ SRC_URI += " \
 SRCREV = "master"
 
 inherit distutils
+
+BBCLASSEXTEND = "native"
