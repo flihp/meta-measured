@@ -3,6 +3,7 @@ DESCRIPTION = " \
     A collection of C and python scripts to calculate PCR values. \
     This includes the TXT / tboot PCRs 17, 18 and 19. \
 "
+HOMEPAGE = "https://github.com/flihp/pcr-calc"
 SECTION = "txt"
 PR = "p0"
 LICENSE = "GPL-2.0"
