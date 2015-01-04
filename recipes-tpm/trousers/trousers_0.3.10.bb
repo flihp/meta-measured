@@ -71,7 +71,10 @@ FILES_${PN}-doc = " \
 	${mandir}/man8 \
 	"
 
-inherit autotools pkgconfig useradd
+inherit autotools pkgconfig useradd update-rc.d
+
+INITSCRIPT_NAME = "trousers"
+INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 19 0 1 6 ."
 
 EXTRA_OECONF="--with-gui=none"
 
