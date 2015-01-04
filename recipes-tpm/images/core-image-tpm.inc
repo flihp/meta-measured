@@ -9,6 +9,7 @@ IMAGE_INSTALL += "\
 	packagegroup-core-boot \
 	packagegroup-tpm \
 	packagegroup-tboot \
+    packagegroup-txt-utils \
 	kmod \
 	tboot-utils \
 	udev-extraconf \
