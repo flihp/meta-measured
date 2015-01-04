@@ -15,6 +15,5 @@ SRC_URI += " \
     git://github.com/flihp/pcr-calc.git \
 "
 SRCREV = "master"
-FILES_${PN} += "${libdir}/python${PYTHON_BASEVERSION}/site-packages/pcr-calc"
 
-inherit autotools
+inherit autotools distutils-base
