@@ -10,7 +10,7 @@ LICENSE = "GPL-2.0"
 S = "${WORKDIR}/git"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 DEPENDS = "pyelftools-native"
-RDEPENDS_${PN} = "python python-argparse python-mmap python-netclient python-textutils pyelftools"
+RDEPENDS_${PN} = "python python-argparse python-compression python-mmap python-netclient python-textutils pyelftools"
 SRC_URI += " \
     git://github.com/flihp/pcr-calc.git \
 "
