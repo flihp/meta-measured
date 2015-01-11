@@ -8,7 +8,8 @@ PR = "p0"
 LICENSE = "Unlicense"
 S = "${WORKDIR}/git"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=8ffb8d54e2d57d6b201d43878fc1ed98"
-RDEPENDS_${PN} = "python"
+RDEPENDS_${PN} = "python python-contextlib python-debugger python-pprint"
+RDEPENDS_${PN}_class-native = "python"
 SRC_URI += " \
     git://github.com/eliben/pyelftools \
 "
