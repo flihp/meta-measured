@@ -32,10 +32,10 @@ do_compile() {
 }
 
 do_install() {
-	oe_runmake DISTDIR="${D}" install
+	oe_runmake DISTDIR="${D}${base_prefix}" install
 }
 
-sysroot_stage_all_append() {
+sysroot_stage_all_append_class-target() {
 	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
 
 	install -d ${DEPLOY_DIR_IMAGE}
