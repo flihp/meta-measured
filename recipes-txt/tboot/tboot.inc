@@ -8,9 +8,10 @@ PR = "r0"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=661cd71df9c2b05204f9fef109bb7ff5"
 DEPENDS = "libtspi openssl zlib"
+DEPENDS_class-native = "trousers-native openssl-native zlib-native"
 
 SRC_URI += " \
-    http://downloads.sourceforge.net/project/${PN}/${PN}/${PN}-${PV}.tar.gz \
+    http://downloads.sourceforge.net/project/${BPN}/${BPN}/${BPN}-${PV}.tar.gz \
     file://tboot-cross-compile.patch \
     file://tboot-tb_polgen-params-print-type.patch \
     file://no-install-strip.patch \
@@ -40,6 +41,8 @@ sysroot_stage_all_append() {
 	install -d ${DEPLOY_DIR_IMAGE}
 	install -m 0644 ${D}/boot/tboot.gz ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz
 }
+
+BBCLASSEXTEND = "native"
 
 PACKAGES += " \
     ${PN}-grub \
