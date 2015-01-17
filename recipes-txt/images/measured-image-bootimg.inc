@@ -31,6 +31,7 @@ ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"
 NOHDD = "1"
 
 TBOOT_CMDLINE = "loglvl=all logging=serial,vga,memory"
+KERNEL_CMDLINE = "ramdisk_size=32768 root=/dev/ram0 ro measureroot rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8"
 
 # be sure the bootimg is built after the initrd and rootfs
 do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
@@ -56,9 +57,13 @@ populate_append() {
 }
 
 build_syslinux_cfg () {
-    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" ${WORKDIR}/syslinux.cfg > ${SYSLINUXCFG}
+    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" \
+        -e "s&@KERNEL_CMDLINE@&${KERNEL_CMDLINE}&" \
+        ${WORKDIR}/syslinux.cfg > ${SYSLINUXCFG}
 }
 
 build_efi_cfg() {
-    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" ${WORKDIR}/grub.cfg > ${GRUBCFG}
+    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" \
+        -e "s&@KERNEL_CMDLINE@&${KERNEL_CMDLINE}&" \
+        ${WORKDIR}/grub.cfg > ${GRUBCFG}
 }
