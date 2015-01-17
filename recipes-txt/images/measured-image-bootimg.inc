@@ -39,6 +39,7 @@ do_bootimg[depends] += "${ROOTFS_IMAGE}:do_rootfs"
 
 inherit core-image
 inherit bootimg
+inherit measured-bootimg
 
 syslinux_hddimg_populate_append() {
 	install -m 0444 ${STAGING_DATADIR}/syslinux/libcom32.c32 $hdd_dir${SYSLINUXDIR}
