@@ -88,3 +88,5 @@ do_install_append() {
         install -d ${D}${sysconfdir}/udev/rules.d
         install -m 0644 ${WORKDIR}/trousers-udev.rules ${D}${sysconfdir}/udev/rules.d/45-trousers.rules
 }
+
+BBCLASSEXTEND = "native"
