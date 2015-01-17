@@ -30,6 +30,8 @@ ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"
 
 NOHDD = "1"
 
+TBOOT_CMDLINE = "loglvl=all logging=serial,vga,memory"
+
 # be sure the bootimg is built after the initrd and rootfs
 do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
 do_bootimg[depends] += "${ROOTFS_IMAGE}:do_rootfs"
@@ -54,9 +56,9 @@ populate_append() {
 }
 
 build_syslinux_cfg () {
-	cp ${WORKDIR}/syslinux.cfg ${SYSLINUXCFG}
+    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" ${WORKDIR}/syslinux.cfg > ${SYSLINUXCFG}
 }
 
 build_efi_cfg() {
-	cp ${WORKDIR}/grub.cfg ${GRUBCFG}
+    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" ${WORKDIR}/grub.cfg > ${GRUBCFG}
 }
