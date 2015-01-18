@@ -13,7 +13,6 @@ DEPENDS_class-native = "trousers-native openssl-native zlib-native"
 SRC_URI += " \
     http://downloads.sourceforge.net/project/${BPN}/${BPN}/${BPN}-${PV}.tar.gz \
     file://tboot-cross-compile.patch \
-    file://tboot-tb_polgen-params-print-type.patch \
     file://no-install-strip.patch \
     file://tboot-no-senter-on-error.diff \
 "
