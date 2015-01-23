@@ -11,4 +11,5 @@ RDEPENDS_packagegroup-tboot = "\
     tboot \
     3rd-gen-i5-i7-sinit \
     4th-gen-i5-i7-sinit \
+    5th-gen-i5-i7-sinit \
     "
