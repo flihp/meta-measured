@@ -1,0 +1,4 @@
+define KFEATURE_DESCRIPTION "Intel Trusted Execution Technology (TXT"
+
+kconf hardware txt.cfg
+
