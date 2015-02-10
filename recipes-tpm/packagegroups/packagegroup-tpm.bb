@@ -4,8 +4,7 @@ PR = "r0"
 
 inherit packagegroup
 
-PROVIDES = "${PACKAGES}"
-PACKAGES = "${@base_contains('DISTRO_FEATURES', 'tpm', 'packagegroup-tpm', '',d)}"
+PROVIDES = "packagegroup-tpm"
 
 RDEPENDS_packagegroup-tpm = "\
     trousers \
