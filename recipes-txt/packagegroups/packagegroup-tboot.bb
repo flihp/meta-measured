@@ -4,8 +4,7 @@ PR = "r0"
 
 inherit packagegroup
 
-PROVIDES = "${PACKAGES}"
-PACKAGES = "${@base_contains('DISTRO_FEATURES', 'txt', 'packagegroup-tboot', '',d)}"
+PROVIDES = "packagegroup-tboot"
 
 RDEPENDS_packagegroup-tboot = "\
     tboot \
