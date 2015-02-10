@@ -7,5 +7,6 @@ inherit packagegroup
 PROVIDES = "packagegroup-txt-utils"
 
 RDEPENDS_packagegroup-txt-utils = "\
+    tboot-utils \
     pcr-calc \
     "
