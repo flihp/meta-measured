@@ -1,4 +1,5 @@
 PACKAGECONFIG += " \
+    aikgen \
     imc-test \
     imv-test \
     imc-scanner \
@@ -18,6 +19,7 @@ PACKAGECONFIG += " \
     tnccs-dynamic \
     tss-trousers \
     "
+PACKAGECONFIG[aikgen] = "--enable-aikgen,--disable-aikgen,,"
 PACKAGECONFIG[imc-test] = "--enable-imc-test,--disable-imc-test,,"
 PACKAGECONFIG[imv-test] = "--enable-imv-test,--disable-imv-test,,"
 PACKAGECONFIG[imc-scanner] = "--enable-imc-scanner,--disable-imc-scanner,,"
