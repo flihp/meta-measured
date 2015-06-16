@@ -15,6 +15,7 @@ SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.10/trous
             file://07-read_data-not-inline.patch \
             file://trousers.init.sh \
             file://trousers-udev.rules \
+            file://tcsd.service \
 "
 
 SRC_URI[md5sum] = "27b7374d991874b4a0a973b1c952c79f"
@@ -72,7 +73,7 @@ FILES_${PN}-doc = " \
 	${mandir}/man8 \
 	"
 
-inherit autotools pkgconfig useradd update-rc.d
+inherit autotools pkgconfig useradd update-rc.d systemd
 
 INITSCRIPT_NAME = "trousers"
 INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 19 0 1 6 ."
@@ -83,11 +84,19 @@ USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "tss"
 USERADD_PARAM_${PN} = "-M -d /var/lib/tpm -s /bin/false -g tss tss"
 
+SYSTEMD_PACKAGES = "${PN}"
+SYSTEMD_SERVICE_${PN} = "tcsd.service"
+SYSTEMD_AUTO_ENABLE = "disable"
+
 do_install_append() {
         install -d ${D}${sysconfdir}/init.d
         install -m 0755 ${WORKDIR}/trousers.init.sh ${D}${sysconfdir}/init.d/trousers
         install -d ${D}${sysconfdir}/udev/rules.d
         install -m 0644 ${WORKDIR}/trousers-udev.rules ${D}${sysconfdir}/udev/rules.d/45-trousers.rules
+        install -d ${D}${systemd_unitdir}/system
+        install -m 0644 ${WORKDIR}/tcsd.service ${D}${systemd_unitdir}/system/
+        install -d ${D}${libexecdir}
+        sed -i -e 's#@SBINDIR@#${sbindir}#g' ${D}${systemd_unitdir}/system/tcsd.service
 }
 
 BBCLASSEXTEND = "native"
