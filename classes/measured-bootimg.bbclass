@@ -1,4 +1,7 @@
-DEPENDS += "tboot-native"
+DEPENDS += " \
+    tboot \
+    tboot-native \
+"
 
 # be sure the bootimg is built after the initrd and rootfs
 do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
