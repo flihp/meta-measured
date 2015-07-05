@@ -1,6 +1,9 @@
 DEPENDS += " \
     tboot \
     tboot-native \
+    3rd-gen-i5-i7-sinit \
+    4th-gen-i5-i7-sinit \
+    5th-gen-i5-i7-sinit \
 "
 
 # be sure the bootimg is built after the initrd and rootfs
