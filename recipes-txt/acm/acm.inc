@@ -16,6 +16,8 @@ SRC_URI += " \
     http://twobit.us/mirrors/acms/${BP}.zip \
     "
 
+inherit deploy
+
 do_install() {
     install -d ${D}/boot
     install -m 0644 ${S}/${SRC_FILE} ${D}/boot
@@ -23,9 +25,16 @@ do_install() {
 
 FILES_${PN} = "${base_prefix}/boot"
 
-sysroot_stage_all_append() {
-	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
-
-	install -d ${DEPLOY_DIR_IMAGE}
+do_deploy() {
 	install -m 0644 ${D}/boot/${SRC_FILE} ${DEPLOY_DIR_IMAGE}/${DST_FILE}
 }
+
+do_deploy_class-native() {
+	:
+}
+
+sysroot_stage_all_append() {
+	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
+}
+
+addtask deploy after do_install before do_build
