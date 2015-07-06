@@ -19,6 +19,8 @@ SRC_URI += " \
 
 COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
+inherit deploy
+
 do_compile() {
 	# keep the OE TARGET_ARCH from confusing tboots Makefiles
 	if [ "${TARGET_ARCH}" != "x86_64" ]; then
@@ -34,12 +36,19 @@ do_install() {
 	oe_runmake DISTDIR="${D}${base_prefix}" install
 }
 
+do_deploy() {
+	install -m 0644 ${D}/boot/tboot.gz ${DEPLOYDIR}/tboot-${MACHINE}.gz
+}
+
+do_deploy_class-native() {
+	:
+}
+
 sysroot_stage_all_append_class-target() {
 	sysroot_stage_dir ${D}/boot ${SYSROOT_DESTDIR}/kernel
-
-	install -d ${DEPLOY_DIR_IMAGE}
-	install -m 0644 ${D}/boot/tboot.gz ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz
 }
+
+addtask deploy after do_install before do_build
 
 BBCLASSEXTEND = "native"
 
