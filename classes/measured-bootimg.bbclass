@@ -38,15 +38,45 @@ populate_append() {
 }
 
 build_syslinux_cfg () {
-    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" \
-        -e "s&@KERNEL_CMDLINE@&${KERNEL_CMDLINE}&" \
-        ${WORKDIR}/syslinux.cfg > ${SYSLINUXCFG}
+    cat > ${SYSLINUXCFG} << EOF
+ALLOWOPTIONS 1
+DEFAULT boot
+TIMEOUT 10
+PROMPT 1
+LABEL boot
+  KERNEL mboot.c32
+  APPEND /tboot.gz ${TBOOT_CMDLINE} --- /vmlinuz ${KERNEL_CMDLINE} --- /initrd  --- /acm_ivb.bin --- /acm_hsw.bin
+EOF
 }
 
+# this is uuuuugly
 build_efi_cfg() {
-    sed -e "s&@TBOOT_CMDLINE@&${TBOOT_CMDLINE}&" \
-        -e "s&@KERNEL_CMDLINE@&${KERNEL_CMDLINE}&" \
-        ${WORKDIR}/grub.cfg > ${GRUBCFG}
+    cat > ${GRUBCFG} << EOF
+serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
+default=boot
+timeout=10
+
+terminal_input console serial
+terminal_output console serial
+EOF
+
+    echo "menuentry 'tboot' {" >> ${GRUBCFG}
+
+    cat >> ${GRUBCFG} << EOF
+  multiboot2 /tboot.gz ${TBOOT_CMDLINE}
+  module2 /vmlinuz ${KERNEL_CMDLINE}
+  module2 /initrd
+  module2 /acm_ivb.bin
+  module2 /acm_hsw.bin
+EOF
+
+    echo -e "}\nmenuentry 'not-tboot {" >> ${GRUBCFG}
+
+    cat >> ${GRUBCFG} << EOF
+  linux /vmlinuz ${KERNEL_CMDLINE}
+  initrd /initrd
+EOF
+    echo "}" >> ${GRUBCFG}
 }
 do_mlehash() {
     if [ ! "${NOHDD}" = "1" ]; then 

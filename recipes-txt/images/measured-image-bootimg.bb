@@ -5,11 +5,6 @@ LIC_FILES_CHKSUM = " \
     file://${COREBASE}/meta/COPYING.MIT;md5=3da9cfbcb788c80a0384361b4de20420 \
     "
 
-SRC_URI = " \
-    file://syslinux.cfg;md5=7ae4fc16f1e54b4dc232e76ffd47b0d5 \
-    file://grub.cfg;md5=9b0245d085f18f5b93dea9ddc18c8174 \
-"
-
 IMAGE_INSTALL += "base-passwd packagegroup-tboot"
 
 INITRD_IMAGE ?= "core-image-tpm-initramfs"
