@@ -26,7 +26,7 @@ do_install() {
 FILES_${PN} = "${base_prefix}/boot"
 
 do_deploy() {
-	install -m 0644 ${D}/boot/${SRC_FILE} ${DEPLOY_DIR_IMAGE}/${DST_FILE}
+	install -m 0644 ${D}/boot/${SRC_FILE} ${DEPLOYDIR}/${DST_FILE}
 }
 
 do_deploy_class-native() {
