@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS_prepend := "${THISDIR}/linux-yocto:"
 
 # Enable kernel support if the feature is available on the machine.
 SRC_URI += " \
