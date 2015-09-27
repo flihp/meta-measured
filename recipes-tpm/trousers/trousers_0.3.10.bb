@@ -12,6 +12,7 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=3728dd9198d68b49f7f9ed1f3f50ba14"
 DEPENDS = "openssl"
 
 SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.10/trousers-0.3.10.tar.gz \
+            file://07-read_data-not-inline.patch \
             file://trousers.init.sh \
             file://trousers-udev.rules \
 "
