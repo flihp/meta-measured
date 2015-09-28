@@ -70,7 +70,7 @@ EOF
   module2 /acm_hsw.bin
 EOF
 
-    echo -e "}\nmenuentry 'not-tboot {" >> ${GRUBCFG}
+    echo -e "}\nmenuentry 'not-tboot' {" >> ${GRUBCFG}
 
     cat >> ${GRUBCFG} << EOF
   linux /vmlinuz ${KERNEL_CMDLINE}
