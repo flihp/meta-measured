@@ -8,18 +8,18 @@ DESCRIPTION = " \
 SECTION = "tpm"
 PR = "r0"
 LICENSE = "CPL-1.0"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=3728dd9198d68b49f7f9ed1f3f50ba14"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=8031b2ae48ededc9b982c08620573426"
 DEPENDS = "openssl"
 
-SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.10/trousers-0.3.10.tar.gz \
+SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.13/trousers-0.3.13.tar.gz \
             file://07-read_data-not-inline.patch \
             file://trousers.init.sh \
             file://trousers-udev.rules \
             file://tcsd.service \
 "
 
-SRC_URI[md5sum] = "27b7374d991874b4a0a973b1c952c79f"
-SRC_URI[sha256sum] = "eb9569de5c66d9698f6c3303de03777b95ec72827f68b7744454bfa9227bc530"
+SRC_URI[md5sum] = "ad508f97b406f6e48cd90e85d78e7ca8"
+SRC_URI[sha256sum] = "bb908e4a3c88a17b247a4fc8e0fff3419d8a13170fe7bdfbe0e2c5c082a276d3"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
