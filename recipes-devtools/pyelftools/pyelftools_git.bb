@@ -7,7 +7,7 @@ SECTION = "devtools"
 PR = "p0"
 LICENSE = "Unlicense"
 S = "${WORKDIR}/git"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=8ffb8d54e2d57d6b201d43878fc1ed98"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=5ce2a2b07fca326bc7c146d10105ccfc"
 RDEPENDS_${PN} = "python python-contextlib python-debugger python-pprint"
 RDEPENDS_${PN}_class-native = "python"
 SRC_URI += " \
