@@ -5,7 +5,7 @@ DESCRIPTION = " \
 "
 SECTION = "devtools"
 PR = "p0"
-LICENSE = "Unlicense"
+LICENSE = "PD"
 S = "${WORKDIR}/git"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=5ce2a2b07fca326bc7c146d10105ccfc"
 RDEPENDS_${PN} = "python python-contextlib python-debugger python-pprint"
