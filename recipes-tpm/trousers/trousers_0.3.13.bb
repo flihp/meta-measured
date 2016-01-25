@@ -97,7 +97,7 @@ do_install_append() {
         install -m 0644 ${WORKDIR}/tcsd.service ${D}${systemd_unitdir}/system/
         install -d ${D}${libexecdir}
         sed -i -e 's#@SBINDIR@#${sbindir}#g' ${D}${systemd_unitdir}/system/tcsd.service
-        rmdir --ignore-fail-on-non-empty ${D}${libdir}/${BPN}
+        rmdir --ignore-fail-on-non-empty ${D}${libdir}/${PN}
 }
 
 BBCLASSEXTEND = "native"
