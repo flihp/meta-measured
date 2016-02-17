@@ -21,6 +21,8 @@ COMPATIBLE_HOST = '(x86_64|i.86).*-(linux|freebsd.*)'
 
 inherit deploy
 
+EXTRA_OEMAKE = "-e MAKEFLAGS="
+
 do_compile() {
 	# keep the OE TARGET_ARCH from confusing tboots Makefiles
 	if [ "${TARGET_ARCH}" != "x86_64" ]; then
