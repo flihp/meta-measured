@@ -11,7 +11,6 @@ do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
 do_bootimg[depends] += "${ROOTFS_IMAGE}:do_rootfs"
 
 inherit core-image
-inherit bootimg
 
 # fetch/unpack tasks don't normally run for image recipes. This means our
 # bootloader configs won't end up in WORKDIR unless we do some magic here.
@@ -35,6 +34,7 @@ syslinux_iso_populate_append() {
 populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_*.bin ${DEST}/
+        lcp_mlehash -c "${TBOOT_CMDLINE}" ${DEST}/tboot.gz > ${DEST}/mlehash
 }
 
 build_syslinux_cfg () {
@@ -51,7 +51,7 @@ EOF
 
 # this is uuuuugly
 build_efi_cfg() {
-    cat > ${GRUBCFG} << EOF
+    cat > ${GRUB_CFG} << EOF
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 default=boot
 timeout=10
@@ -60,9 +60,9 @@ terminal_input console serial
 terminal_output console serial
 EOF
 
-    echo "menuentry 'tboot' {" >> ${GRUBCFG}
+    echo "menuentry 'tboot' {" >> ${GRUB_CFG}
 
-    cat >> ${GRUBCFG} << EOF
+    cat >> ${GRUB_CFG} << EOF
   multiboot2 /tboot.gz ${TBOOT_CMDLINE}
   module2 /vmlinuz ${KERNEL_CMDLINE}
   module2 /initrd
@@ -70,22 +70,11 @@ EOF
   module2 /acm_hsw.bin
 EOF
 
-    echo -e "}\nmenuentry 'not-tboot' {" >> ${GRUBCFG}
+    echo -e "}\nmenuentry 'not-tboot' {" >> ${GRUB_CFG}
 
-    cat >> ${GRUBCFG} << EOF
+    cat >> ${GRUB_CFG} << EOF
   linux /vmlinuz ${KERNEL_CMDLINE}
   initrd /initrd
 EOF
-    echo "}" >> ${GRUBCFG}
+    echo "}" >> ${GRUB_CFG}
 }
-do_mlehash() {
-    if [ ! "${NOHDD}" = "1" ]; then 
-        lcp_mlehash -c "${TBOOT_CMDLINE}" ${HDDDIR}/tboot.gz > ${HDDDIR}/mlehash
-    fi
-    if [ ! "${NOISO}" = "1" ]; then
-        lcp_mlehash -c "${TBOOT_CMDLINE}" ${ISODIR}/tboot.gz > ${ISODIR}/mlehash
-    fi
-}
-
-addtask mlehash after do_bootimg before do_build
-
