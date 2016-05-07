@@ -11,7 +11,7 @@ INITRD_IMAGE_LIVE ?= "core-image-tpm-initramfs"
 INITRD_LIVE = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE_LIVE}-${MACHINE}.cpio.gz"
 
 ROOTFS_IMAGE ?= "core-image-tpm"
-ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"
+ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext4"
 
 NOHDD = "1"
 
