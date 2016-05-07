@@ -7,8 +7,8 @@ LIC_FILES_CHKSUM = " \
 
 IMAGE_INSTALL += "base-passwd packagegroup-tboot"
 
-INITRD_IMAGE ?= "core-image-tpm-initramfs"
-INITRD = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE}-${MACHINE}.cpio.gz"
+INITRD_IMAGE_LIVE ?= "core-image-tpm-initramfs"
+INITRD_LIVE = "${DEPLOY_DIR_IMAGE}/${INITRD_IMAGE_LIVE}-${MACHINE}.cpio.gz"
 
 ROOTFS_IMAGE ?= "core-image-tpm"
 ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext3"

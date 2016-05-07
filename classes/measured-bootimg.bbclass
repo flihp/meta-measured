@@ -7,7 +7,7 @@ DEPENDS += " \
 "
 
 # be sure the bootimg is built after the initrd and rootfs
-do_bootimg[depends] += "${INITRD_IMAGE}:do_rootfs"
+do_bootimg[depends] += "${INITRD_IMAGE_LIVE}:do_rootfs"
 do_bootimg[depends] += "${ROOTFS_IMAGE}:do_rootfs"
 
 inherit core-image
