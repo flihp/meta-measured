@@ -13,7 +13,12 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=377548
 # it's fixed upstream.
 DEPENDS = "autoconf-archive"
 
-SRC_URI = "git://github.com/01org/TPM2.0-TSS.git;protocol=git;branch=master;name=TPM2.0-TSS;destsuffix=TPM2.0-TSS"
+SRC_URI = " \
+    git://github.com/01org/TPM2.0-TSS.git;protocol=git;branch=master;name=TPM2.0-TSS;destsuffix=TPM2.0-TSS \
+    file://no-cmocka-configure-ac.diff \
+    file://vpath-fix-for-pc-files.diff \
+    file://no-wall-werror.diff \
+    "
 
 # CAPS? SRSLY?
 S = "${WORKDIR}/${@d.getVar('BPN',d).upper()}"
@@ -22,6 +27,48 @@ S = "${WORKDIR}/${@d.getVar('BPN',d).upper()}"
 SRCREV = "${AUTOREV}"
 PVBASE := "${PV}"
 PV = "${PVBASE}.${SRCPV}"
+
+PROVIDES = "${PACKAGES}"
+PACKAGES = " \
+    ${PN}-dbg \
+    libtss2 \
+    libtss2-dev \
+    libtss2-staticdev \
+    libtctidevice \
+    libtctidevice-dev \
+    libtctidevice-staticdev \
+    libtctisocket \
+    libtctisocket-dev \
+    libtctisocket-staticdev \
+    resourcemgr \
+"
+
+FILES_libtss2 = "${libdir}/libtss2.so.0.0.0"
+FILES_libtss2-dev = " \
+    ${includedir}/tss2 \
+    ${includedir}/tcti/common.h \
+    ${libdir}/libtss2.so* \
+    ${libdir}/pkgconfig/tss2.pc \
+"
+FILES_libtss2-staticdev = " \
+    ${libdir}/libtss2.a \
+    ${libdir}/libtss2.la \
+"
+FILES_libtctidevice = "${libdir}/libtctidevice.so.0.0.0"
+FILES_libtctidevice-dev = " \
+    ${includedir}/tcti/tcti_device.h \
+    ${libdir}/libtctidevice.so* \
+    ${libdir}/pkgconfig/tcti_device.pc \
+"
+FILES_libtctidevice-staticdev = "${libdir}/libtctidevice.*a"
+FILES_libtctisocket = "${libdir}/libtctisocket.so.0.0.0"
+FILES_libtctisocket-dev = " \
+    ${includedir}/tcti/tcti_socket.h \
+    ${libdir}/libtctisocket.so* \
+    ${libdir}/pkgconfig/tcti_socket.pc \
+"
+FILES_libtctisocket-staticdev = "${libdir}/libtctisocket.*a"
+FILES_resourcemgr = "${sbindir}/resourcemgr"
 
 inherit autotools autotools-bootstrap
 
