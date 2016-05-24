@@ -1,0 +1,621 @@
+From 74c6b3ba55f23fd35cf13df42ce43fe5131afa94 Mon Sep 17 00:00:00 2001
+From: Philip Tricca <philip.b.tricca@intel.com>
+Date: Fri, 8 Jan 2016 09:34:00 -0800
+Subject: [PATCH 2/9] tpm2cmd: Add new commands for basic interaction with
+ TPM2.
+
+tpm2dumpcaps: Pretty print the TPM2 capabilities structure. This is a
+great way to see what algorithms and event log format your TPM2
+supports.
+tpm2dumpeventlog: Pretty print the TPM2 event log. Using this you can
+see the hashes of data extended into the PCRs of your TPM.
+tpm2extend: Extend arbitrary data into a PCR. The data may be a simple
+string or a file. The actions performed using this command should be
+reflected in the event log.
+---
+ grub-core/Makefile.core.def      |   7 +
+ grub-core/commands/efi/tpm2cmd.c | 574 +++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 581 insertions(+)
+ create mode 100644 grub-core/commands/efi/tpm2cmd.c
+
+diff --git a/grub-core/Makefile.core.def b/grub-core/Makefile.core.def
+index 70ec30e..897ef3e 100644
+--- a/grub-core/Makefile.core.def
++++ b/grub-core/Makefile.core.def
+@@ -741,6 +741,13 @@ module = {
+ };
+ 
+ module = {
++  name = tpm2cmd;
++  common = commands/efi/tpm2cmd.c;
++  enable = i386_efi;
++  enable = x86_64_efi;
++};
++
++module = {
+   name = boot;
+   common = commands/boot.c;
+   i386_pc = lib/i386/pc/biosnum.c;
+diff --git a/grub-core/commands/efi/tpm2cmd.c b/grub-core/commands/efi/tpm2cmd.c
+new file mode 100644
+index 0000000..a71edd5
+--- /dev/null
++++ b/grub-core/commands/efi/tpm2cmd.c
+@@ -0,0 +1,574 @@
++/* tpm2cmd.c - commands for interacting with TPM2 via UEFI protocol */
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2015  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#include <grub/types.h>
++#include <grub/misc.h>
++#include <grub/mm.h>
++#include <grub/err.h>
++#include <grub/dl.h>
++#include <grub/extcmd.h>
++#include <grub/file.h>
++#include <grub/i18n.h>
++#include <grub/efi/tpm12.h>
++#include <grub/efi/tpm2.h>
++
++GRUB_MOD_LICENSE ("GPLv3+");
++
++static const struct grub_arg_option opts_dumplog[] =
++  {
++    { "format", 'f', 0, N_("log format"), N_("(1.2|2.0)"), ARG_TYPE_STRING },
++    { 0 }
++  };
++
++static const struct grub_arg_option opts_extend[] =
++  {
++    { "pcr", 'p', 0, N_("PCR to extend"), N_("0-23"), ARG_TYPE_INT },
++    { "type", 't', 0, N_("event type"), N_("0x0-0xffffffff"), ARG_TYPE_INT },
++    { "string", 's', 0, N_("extend PCR with hash of string"), N_("STRING"),
++      ARG_TYPE_STRING },
++    { "file", 'f', 0, N_("exted PCR with hash of file"), N_("FILE_NAME"),
++      ARG_TYPE_STRING },
++    { 0 }
++  };
++
++static const struct grub_arg_option opts_help[] =
++  {
++    { "help", 'h', 0, N_("display help message"), NULL, ARG_TYPE_NONE },
++    { 0 }
++  };
++
++enum
++  {
++    OPTION_FORMAT,
++  };
++
++enum
++  {
++    OPTION_PCR,
++    OPTION_TYPE,
++    OPTION_STRING,
++    OPTION_FILE,
++  };
++
++/* Common data used by all functions, always check to see if protocol is null
++ * before using it. If so call get capabilities.
++ */
++static EFI_TCG2_PROTOCOL *g_tpm2;
++
++static grub_extcmd_t cmd_dumpcaps;
++static grub_extcmd_t cmd_dumpeventlog;
++static grub_extcmd_t cmd_extend;
++
++static void
++caps_prettyprint (EFI_TCG2_BOOT_SERVICE_CAPABILITY *caps)
++{
++  grub_printf ("TPM2 Capabilities:\n");
++  grub_printf ("  Size: 0x%02x\n", caps->Size);
++  grub_printf ("  StructureVersion:\n");
++  grub_printf ("    Major: 0x%02x\n", caps->StructureVersion.Major);
++  grub_printf ("    Minor: 0x%02x\n", caps->StructureVersion.Minor);
++  grub_printf ("  ProtocolVersion:\n");
++  grub_printf ("    Major: 0x%02x\n", caps->ProtocolVersion.Major);
++  grub_printf ("    Minor: 0x%02x\n", caps->ProtocolVersion.Minor);
++  grub_printf ("  HashAlgorithmBitmap: 0x%08x\n",
++    caps->HashAlgorithmBitmap);
++  grub_printf ("    EFI_TCG2_BOOT_HASH_ALG_SHA1: %s\n",
++    (caps->HashAlgorithmBitmap & EFI_TCG2_BOOT_HASH_ALG_SHA1) ? "true" : "false");
++  grub_printf ("    EFI_TCG2_BOOT_HASH_ALG_SHA256: %s\n",
++    (caps->HashAlgorithmBitmap & EFI_TCG2_BOOT_HASH_ALG_SHA256) ? "true" : "false");
++  grub_printf ("    EFI_TCG2_BOOT_HASH_ALG_SHA384: %s\n",
++    (caps->HashAlgorithmBitmap & EFI_TCG2_BOOT_HASH_ALG_SHA384) ? "true" : "false");
++  grub_printf ("    EFI_TCG2_BOOT_HASH_ALG_SHA512: %s\n",
++    (caps->HashAlgorithmBitmap & EFI_TCG2_BOOT_HASH_ALG_SHA512) ? "true" : "false");
++  grub_printf ("    EFI_TCG2_BOOT_HASH_ALG_SM3_256: %s\n",
++    (caps->HashAlgorithmBitmap & EFI_TCG2_BOOT_HASH_ALG_SM3_256) ? "true" : "false");
++  grub_printf ("  SupportedEventLogs: 0x%08x\n",
++    caps->SupportedEventLogs);
++  grub_printf ("    EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2: %s\n",
++    (caps->SupportedEventLogs & EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2) ? "true" : "false");
++  grub_printf ("    EFI_TCG2_EVENT_LOG_FORMAT_TCG_2: %s\n",
++    (caps->SupportedEventLogs & EFI_TCG2_EVENT_LOG_FORMAT_TCG_2) ? "true" : "false");
++  grub_printf ("  TPMPresentFlag: 0x%02x : %s\n",
++    caps->TPMPresentFlag, (caps->TPMPresentFlag) ? "true" : "false");
++  grub_printf ("  MaxCommandSize: 0x%04x\n",
++    caps->MaxCommandSize);
++  grub_printf ("  MaxResponseSize: 0x%04x\n",
++    caps->MaxResponseSize);
++  grub_printf ("  ManufacturerID: 0x%08x\n",
++    caps->ManufacturerID);
++  grub_printf ("  NumberOfPcrBanks: 0x%08x\n",
++    caps->NumberOfPcrBanks);
++  grub_printf ("  ActivePcrBanks: 0x%08x\n",
++    caps->ActivePcrBanks);
++}
++
++static void
++dump_hex (char *data, grub_size_t size)
++{
++  grub_size_t i;
++
++  for (i = 0; i < size; ++i)
++    grub_printf ("%02x", (unsigned)data[i] & 0xffU);
++}
++
++static void
++prettyprint_tpm12_event (TCG_PCR_EVENT *event)
++{
++  /* print something */
++  grub_printf ("prettyprint_tpm12_event at: %p\n", event);
++  grub_printf ("  PCRIndex: %d\n", event->PCRIndex);
++  grub_printf ("  EventType: ");
++  switch (event->EventType)
++    {
++    case EV_PREBOOT_CERT:
++      grub_printf ("EV_PREBOOT_CERT");
++      break;
++    case EV_POST_CODE:
++      grub_printf ("EV_POST_CODE");
++      break;
++    case EV_UNUSED:
++      grub_printf ("EV_UNUSED");
++      break;
++    case EV_NO_ACTION:
++      grub_printf ("EV_NO_ACTION");
++      break;
++    case EV_SEPARATOR:
++      grub_printf ("EV_SEPARATOR");
++      break;
++    case EV_ACTION:
++      grub_printf ("EV_ACTION");
++      break;
++    case EV_EVENT_TAG:
++      grub_printf ("EV_EVENT_TAG");
++      break;
++    case EV_S_CRTM_CONTENTS:
++      grub_printf ("EV_S_CRTM_CONTENTS");
++      break;
++    case EV_S_CRTM_VERSION:
++      grub_printf ("EV_S_CRTM_VERSION");
++      break;
++    case EV_CPU_MICROCODE:
++      grub_printf ("EV_CPU_MICROCODE");
++      break;
++    case EV_PLATFORM_CONFIG_FLAGS:
++      grub_printf ("EV_PLATFORM_CONFIG_FLAGS");
++      break;
++    case EV_TABLE_OF_DEVICES:
++      grub_printf ("EV_TABLE_OF_DEVICES");
++      break;
++    case EV_COMPACT_HASH:
++      grub_printf ("EV_COMPACT_HASH");
++      break;
++    case EV_IPL:
++      grub_printf ("EV_IPL");
++      break;
++    case EV_IPL_PARTITION_DATA:
++      grub_printf ("EV_IPL_PARTITION_DATA");
++      break;
++    case EV_NONHOST_CODE:
++      grub_printf ("EV_NONHOST_CODE");
++      break;
++    case EV_NONHOST_CONFIG:
++      grub_printf ("EV_NONHOST_CONFIG");
++      break;
++    case EV_NONHOST_INFO:
++      grub_printf ("EV_NONHOST_INFO");
++      break;
++    case EV_OMIT_BOOT_DEVICE_EVENTS:
++      grub_printf ("EV_OMIT_BOOT_DEVICE_EVENTS");
++      break;
++    case EV_EFI_VARIABLE_DRIVER_CONFIG:
++      grub_printf ("EV_EFI_VARIABLE_DRIVER_CONFIG");
++      break;
++    case EV_EFI_VARIABLE_BOOT:
++      grub_printf ("EV_EFI_VARIABLE_BOOT");
++      break;
++    case EV_EFI_BOOT_SERVICES_APPLICATION:
++      grub_printf ("EV_EFI_BOOT_SERVICES_APPLICATION");
++      break;
++    case EV_EFI_BOOT_SERVICES_DRIVER:
++      grub_printf ("EV_EFI_BOOT_SERVICES_DRIVER");
++      break;
++    case EV_EFI_RUNTIME_SERVICES_DRIVER:
++      grub_printf ("EV_EFI_RUNTIME_SERVICES_DRIVER");
++      break;
++    case EV_EFI_GPT_EVENT:
++      grub_printf ("EV_EFI_GPT_EVENT");
++      break;
++    case EV_EFI_ACTION:
++      grub_printf ("EV_EFI_ACTION");
++      break;
++    case EV_EFI_PLATFORM_FIRMWARE_BLOB:
++      grub_printf ("EV_EFI_PLATFORM_FIRMWARE_BLOB");
++      break;
++    case EV_EFI_HANDOFF_TABLES:
++      grub_printf ("EV_EFI_HANDOFF_TABLES");
++      break;
++    case EV_EFI_VARIABLE_AUTHORITY:
++      grub_printf ("EV_EFI_VARIABLE_AUTHORITY");
++      break;
++    default:
++      grub_printf ("Unknown event type");
++      break;
++    }
++    grub_printf (" (0x%08x)\n", event->EventType);
++    grub_printf ("  digest: ");
++    dump_hex ((char*)&(event->digest), sizeof (event->digest));
++    grub_printf ("\n  EventSize: %d\n", event->EventSize);
++    grub_printf ("  Event: %s\n", (char*)&(event->Event));
++}
++
++/* Gien an entry in the event log, return the next entry.
++ */
++static TCG_PCR_EVENT*
++grub_tpm12_event_next (TCG_PCR_EVENT *current,
++                       TCG_PCR_EVENT *last)
++{
++  TCG_PCR_EVENT *next;
++
++  if (current == last)
++      return NULL;
++  next = (TCG_PCR_EVENT*)((char*)(current + 1) + current->EventSize - 1);
++  /* Don't return an insane value for the next event */
++  if (next > last)
++    {
++      grub_error (GRUB_ERR_OUT_OF_RANGE,
++                  "current element is beyond the end of the event log");
++      return NULL;
++    }
++  return next;
++}
++
++static void
++prettyprint_tpm12_eventlog (grub_efi_physical_address_t first,
++                            grub_efi_physical_address_t last,
++                            grub_uint8_t truncated)
++{
++  TCG_PCR_EVENT *event_last, *event;
++
++  /* The grub_efi_physical_address_t is a 64 bit type, casting it to
++   * TCG_PCR_EVENT will cause a warning on systems that aren't 64bit.
++   * This can be safely ignored. The firmware is responsible for setting
++   * this address and it should use addresses of the appropriate size.
++   */
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
++  event = (TCG_PCR_EVENT*) first;
++  event_last  = (TCG_PCR_EVENT*) last;
++#pragma GCC diagnostic pop
++
++  grub_printf ("TPM2 EventLog\n  start: %p\n  end: %p\n  truncated: %s\n",
++               event, event_last, truncated ? "true" : "false");
++  /* No events in the event log */
++  if (event == NULL)
++    {
++      grub_printf ("TPM2 EventLog is empty.");
++      return;
++    }
++
++  do
++    {
++      prettyprint_tpm12_event (event);
++    }
++  while ((event = grub_tpm12_event_next (event, event_last)) != NULL);
++}
++
++/* Load file into dynamically allocated buffer. Return the size of the new
++ * buffer in the4 file_size parameter. The caller is responsible for freeing
++ * the returned buffer if it's not NULL.
++ */
++static char*
++grub_tpm2cmd_load_file (char *file_name, grub_uint64_t *file_size)
++{
++  grub_file_t file;
++  char *buf;
++  grub_ssize_t size;
++
++  file = grub_file_open (file_name);
++  if (! file)
++    return NULL;
++
++  size = grub_file_size (file);
++  buf = grub_malloc (size);
++  if (! buf)
++    {
++      grub_file_close (file);
++      return NULL;
++    }
++
++  /* ignore short reads */
++  if (grub_file_read (file, buf, size) != (int) size)
++    {
++      grub_printf ("grub_tpm2_load_file got a short read.\n");
++      grub_file_close (file);
++      grub_free (buf);
++      return NULL;
++    }
++
++  grub_file_close (file);
++  *file_size = size;
++  return buf;
++}
++
++static grub_err_t
++grub_tpm2cmd_get_protocol (EFI_TCG2_PROTOCOL **prot)
++{
++  grub_err_t err = 0;
++
++  *prot = NULL;
++  /* get protocol object if necessary */
++  if (!g_tpm2)
++    {
++      err = grub_tpm2_get_protocol (&g_tpm2);
++      if (err)
++        return err;
++      /* if still no protocol object the UEFI firmware doesn't support TPM2, not an error*/
++      else if (!g_tpm2)
++        return 0;
++    }
++  *prot = g_tpm2;
++  return err;
++}
++
++/*  Get TPM2 capability structure and pretty print to stdout.
++ */
++static grub_err_t
++grub_tpm2cmd_dump_capability (grub_extcmd_context_t ctxt __attribute__ ((unused)),
++                              int argc __attribute__ ((unused)),
++                              char **args __attribute__ ((unused)))
++{
++  grub_err_t err;
++  EFI_TCG2_PROTOCOL *tpm2_prot;
++  EFI_TCG2_BOOT_SERVICE_CAPABILITY caps = {0,};
++  caps.Size = sizeof (EFI_TCG2_BOOT_SERVICE_CAPABILITY);
++
++  err = grub_tpm2cmd_get_protocol (&tpm2_prot);
++  if (err)
++    return err;
++  else if (!tpm2_prot)
++    return 0;
++
++  err = grub_tpm2_get_capability (tpm2_prot, &caps);
++  if (! err)
++    caps_prettyprint (&caps);
++  return err;
++}
++
++/*  Get TPM2 event log and pretty print to stdout.
++ */
++static grub_err_t
++grub_tpm2cmd_dump_eventlog (grub_extcmd_context_t ctxt,
++                            int argc __attribute__ ((unused)),
++                            char **args __attribute__ ((unused)))
++{
++  grub_err_t err;
++  grub_efi_physical_address_t first = 0, last = 0;
++  grub_efi_boolean_t truncated = 0;
++  struct grub_arg_list *state = ctxt->state;
++  EFI_TCG2_BOOT_SERVICE_CAPABILITY caps = {0,};
++  /* default to 1.2 log format */
++  grub_uint32_t format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
++  EFI_TCG2_PROTOCOL *tpm2_prot;
++
++  err = grub_tpm2cmd_get_protocol (&tpm2_prot);
++  if (err)
++    return err;
++  else if (!tpm2_prot)
++    return 0;
++
++  if (state [OPTION_FORMAT].set)
++    {
++      if (!grub_strncmp (state[OPTION_FORMAT].arg, "1.2", 3))
++        format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
++      if (!grub_strncmp (state[OPTION_FORMAT].arg, "2.0", 3))
++        format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_2;
++    }
++  /* GetCapability first to be sure the requested event log format is
++   * supported
++   */
++  caps.Size = sizeof (EFI_TCG2_BOOT_SERVICE_CAPABILITY);
++  err = grub_tpm2_get_capability (tpm2_prot, &caps);
++  if (err)
++    return err;
++  if (!(caps.SupportedEventLogs & format))
++    return grub_error(GRUB_ERR_BAD_ARGUMENT,
++                      N_("Your TPM doesn't support the event log format requested"));
++  err = grub_tpm2_get_eventlog (tpm2_prot, format, &first, &last, &truncated);
++  if (err)
++    return err;
++  switch (format)
++    {
++    case EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2:
++      prettyprint_tpm12_eventlog (first, last, truncated);
++      return 0;
++    case EFI_TCG2_EVENT_LOG_FORMAT_TCG_2:
++      /* I've not found a TPM2 system that supports the TPM2 log format yet.
++       */
++      return grub_error (GRUB_ERR_NOT_IMPLEMENTED_YET,
++                         N_("TCG2 log format not yet supported"));
++    default:
++      return grub_error (GRUB_ERR_BAD_ARGUMENT,
++                         N_("Unknown event log format"));
++    }
++}
++
++static grub_err_t
++grub_tpm2cmd_string_extend (char *str,
++                            grub_efi_uint32_t pcr,
++                            grub_efi_uint32_t event_type,
++                            grub_efi_uint64_t flags)
++{
++  grub_err_t err;
++  grub_efi_uint64_t data_size, event_size;
++  EFI_TCG2_PROTOCOL *tpm2_prot;
++  EFI_TCG2_EVENT *event;
++
++  err = grub_tpm2cmd_get_protocol (&tpm2_prot);
++  if (err)
++    return err;
++  else if (!tpm2_prot)
++    return 0;
++
++  /* allocate event with enough room to put the string into the Event[] */
++  data_size = grub_strlen(str) + 1;
++  event_size = sizeof (EFI_TCG2_EVENT) + data_size;
++  event = (EFI_TCG2_EVENT*)grub_malloc(event_size);
++  if (! event)
++    return grub_errno;
++  grub_memcpy (event->Event, str, data_size);
++
++  event->Header.HeaderSize = sizeof(EFI_TCG2_EVENT_HEADER);
++  event->Header.HeaderVersion = 1;
++  event->Header.PCRIndex = pcr;
++  event->Header.EventType = event_type;
++  event->Size = event_size;
++
++  err = grub_tpm2_extend (tpm2_prot, flags, str, data_size, event);
++  if (event)
++    grub_free (event);
++  return err;
++}
++
++static grub_err_t
++grub_tpm2cmd_file_extend (char *file_name,
++                          grub_efi_uint32_t pcr_index,
++                          grub_efi_uint32_t event_type,
++                          grub_efi_uint64_t flags)
++{
++  grub_err_t err;
++  grub_efi_uint64_t data_size, event_size, name_length;
++  char *data;
++  EFI_TCG2_PROTOCOL *tpm2_prot;
++  EFI_TCG2_EVENT *event;
++
++  err = grub_tpm2cmd_get_protocol (&tpm2_prot);
++  if (err)
++    return err;
++  else if (!tpm2_prot)
++    return 0;
++
++  data = grub_tpm2cmd_load_file (file_name, &data_size);
++  if (! data)
++    return grub_errno;
++  name_length = grub_strlen (file_name) + 1;
++  event_size = sizeof (EFI_TCG2_EVENT) + name_length;
++  event = (EFI_TCG2_EVENT*)grub_malloc(event_size);
++  if (! event)
++    return grub_errno;
++  grub_memcpy (event->Event, file_name, name_length);
++  /* when allocating event must account for size of Event[] member */
++  event->Header.HeaderSize = sizeof(EFI_TCG2_EVENT_HEADER);
++  event->Header.HeaderVersion = 1;
++  event->Header.PCRIndex = pcr_index;
++  event->Header.EventType = event_type;
++  event->Size = event_size;
++
++  err = grub_tpm2_extend (tpm2_prot, flags, data, data_size, event);
++  if (event)
++    grub_free (event);
++  if (data)
++    grub_free (data);
++  return err;
++}
++
++static grub_err_t
++grub_tpm2cmd_extend (grub_extcmd_context_t ctxt,
++                     int argc __attribute__ ((unused)),
++                     char **args __attribute__ ((unused)))
++{
++  grub_err_t err;
++  grub_efi_uint64_t flags = 0;
++  grub_efi_uint32_t pcr_index = 7, event_type = EV_IPL;
++  struct grub_arg_list *state = ctxt->state;
++
++  if (state [OPTION_PCR].set)
++    {
++      pcr_index = grub_strtoul (state[OPTION_PCR].arg, NULL, 10);
++      if (pcr_index > 23)
++        return grub_error (GRUB_ERR_BAD_ARGUMENT, N_("PCR must be between 0 and 23"));
++    }
++  /* extremely liberal here: allow user to specify any event type */
++  if (state [OPTION_TYPE].set)
++    event_type = grub_strtoul (state[OPTION_TYPE].arg, NULL, 16);
++  if ((state [OPTION_STRING].set && state [OPTION_FILE].set) ||
++      (!state [OPTION_STRING].set && !state [OPTION_FILE].set))
++    return grub_error (GRUB_ERR_BAD_ARGUMENT, N_("Please provide either STRING or FILE"));
++  if (state [OPTION_STRING].set) /* extend string */
++      err = grub_tpm2cmd_string_extend (state[OPTION_STRING].arg,
++                                        pcr_index,
++                                        event_type,
++                                        flags);
++  else /* extend file */
++      err = grub_tpm2cmd_file_extend (state[OPTION_FILE].arg,
++                                      pcr_index,
++                                      event_type,
++                                      flags);
++  return err;
++}
++
++GRUB_MOD_INIT(tpm2cmd)
++{
++  cmd_dumpcaps =
++    grub_register_extcmd (N_("tpm2dumpcaps"),
++                          grub_tpm2cmd_dump_capability,
++                          GRUB_COMMAND_FLAG_EXTCMD,
++                          N_("[-h]"),
++                          N_("Pretty print EFI_TCG2_BOOT_SERVICE_CAPABILITY structure.\n"),
++                          opts_help);
++  cmd_dumpeventlog =
++    grub_register_extcmd (N_("tpm2dumplog"),
++                          grub_tpm2cmd_dump_eventlog,
++                          GRUB_COMMAND_FLAG_EXTCMD,
++                          N_("[-h][-f (1.2|2.0)]"),
++                          N_("Pretty print TPM2 event log in requested format.\n"),
++                          opts_dumplog);
++  cmd_extend =
++    grub_register_extcmd (N_("tpm2extend"),
++                          grub_tpm2cmd_extend,
++                          GRUB_COMMAND_FLAG_EXTCMD,
++                          N_("[-h][-p 0-23][-t 0x0-0xffffffff] [-s STRING | -f FILE]"),
++                          N_("Extend data into specified PCR."),
++                          opts_extend);
++}
++
++GRUB_MOD_FINI(tpm2cmd)
++{
++  grub_unregister_extcmd (cmd_dumpcaps);
++  grub_unregister_extcmd (cmd_dumpeventlog);
++  grub_unregister_extcmd (cmd_extend);
++}
+-- 
+2.1.4
+

@@ -1,0 +1,753 @@
+From eab03f6627f110b6fc7e2994d15cbabdf41825d3 Mon Sep 17 00:00:00 2001
+From: Philip Tricca <philip.b.tricca@intel.com>
+Date: Fri, 8 Jan 2016 09:27:45 -0800
+Subject: [PATCH 1/9] tpm2: Add types and functions to use UEFI TCG commands.
+
+Signed-off-by: Philip Tricca <philip.b.tricca@intel.com>
+---
+ grub-core/Makefile.am          |   2 +
+ grub-core/Makefile.core.def    |   1 +
+ grub-core/kern/efi/tpm2.c      | 284 +++++++++++++++++++++++++++++++++++++++++
+ include/grub/efi/tpm12.h       |  26 ++++
+ include/grub/efi/tpm12_types.h |  89 +++++++++++++
+ include/grub/efi/tpm2.h        |  73 +++++++++++
+ include/grub/efi/tpm2_types.h  | 195 ++++++++++++++++++++++++++++
+ 7 files changed, 670 insertions(+)
+ create mode 100644 grub-core/kern/efi/tpm2.c
+ create mode 100644 include/grub/efi/tpm12.h
+ create mode 100644 include/grub/efi/tpm12_types.h
+ create mode 100644 include/grub/efi/tpm2.h
+ create mode 100644 include/grub/efi/tpm2_types.h
+
+diff --git a/grub-core/Makefile.am b/grub-core/Makefile.am
+index 04e9395..55d4929 100644
+--- a/grub-core/Makefile.am
++++ b/grub-core/Makefile.am
+@@ -108,6 +108,7 @@ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/i386/tsc.h
+ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/acpi.h
+ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/pci.h
+ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/i386/pmtimer.h
++KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/tpm2.h
+ endif
+ 
+ if COND_i386_coreboot
+@@ -164,6 +165,7 @@ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/i386/tsc.h
+ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/pci.h
+ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/acpi.h
+ KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/i386/pmtimer.h
++KERNEL_HEADER_FILES += $(top_srcdir)/include/grub/efi/tpm2.h
+ endif
+ 
+ if COND_ia64_efi
+diff --git a/grub-core/Makefile.core.def b/grub-core/Makefile.core.def
+index 58b4208..70ec30e 100644
+--- a/grub-core/Makefile.core.def
++++ b/grub-core/Makefile.core.def
+@@ -173,6 +173,7 @@ kernel = {
+   efi = term/efi/console.c;
+   efi = kern/acpi.c;
+   efi = kern/efi/acpi.c;
++  efi = kern/efi/tpm2.c;
+   i386_coreboot = kern/i386/pc/acpi.c;
+   i386_multiboot = kern/i386/pc/acpi.c;
+   i386_coreboot = kern/acpi.c;
+diff --git a/grub-core/kern/efi/tpm2.c b/grub-core/kern/efi/tpm2.c
+new file mode 100644
+index 0000000..527799b
+--- /dev/null
++++ b/grub-core/kern/efi/tpm2.c
+@@ -0,0 +1,284 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2016  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#include <grub/efi/tpm2.h>
++#include <grub/types.h>
++
++#ifndef NULL
++# define NULL   ((void *) 0)
++#endif
++
++#define PCR_BIN 8
++#define PCR_CFG 9
++
++/* Get TPM2 efi protocol structure.
++ */
++grub_err_t
++grub_tpm2_get_protocol (EFI_TCG2_PROTOCOL **prot)
++{
++  grub_efi_handle_t *handles;
++  grub_efi_uintn_t num_handles;
++  grub_efi_guid_t tpm2_guid = EFI_TCG2_PROTOCOL_GUID;
++
++  handles = grub_efi_locate_handle (GRUB_EFI_BY_PROTOCOL, &tpm2_guid,
++                                    NULL, &num_handles);
++  if (!handles || num_handles == 0)
++    {
++      grub_printf ("EFI_TCG2_PROTOCOL_GUID no handles: no TPM2 support?\n");
++      *prot = NULL;
++      return 0;
++    }
++  else if (num_handles > 1)
++    grub_printf ("EFI_TCG2_PROTOCOL more than one handle: defaulting to handle[0]\n");
++  *prot = grub_efi_open_protocol (handles[0], &tpm2_guid,
++                                  GRUB_EFI_OPEN_PROTOCOL_GET_PROTOCOL);
++  if (!(*prot))
++    {
++      grub_printf ("Failed to get TPM2 protocol object.\n");
++      return 1;
++    }
++  return 0;
++}
++
++/* Use the provided protocol object to populate the provided capability
++ * structure. Translate EFI error codes to the appropriate grub_err_t
++ * type.
++ */
++grub_err_t
++grub_tpm2_get_capability (EFI_TCG2_PROTOCOL *tpm2_prot,
++                          EFI_TCG2_BOOT_SERVICE_CAPABILITY *caps)
++{
++  grub_efi_status_t status;
++
++  status = efi_call_2 (tpm2_prot->GetCapability, tpm2_prot, caps);
++  switch (status) {
++  case GRUB_EFI_SUCCESS:
++    return 0;
++  case GRUB_EFI_DEVICE_ERROR:
++    return grub_error(GRUB_ERR_IO, N_("Command failed"));
++  case GRUB_EFI_INVALID_PARAMETER:
++    return grub_error(GRUB_ERR_BAD_ARGUMENT, N_("Invalid parameter"));
++  case GRUB_EFI_BUFFER_TOO_SMALL:
++    return grub_error(GRUB_ERR_BAD_ARGUMENT, N_("Buffer too small"));
++  default:
++    return grub_error(GRUB_ERR_UNKNOWN_DEVICE, N_("Unknown TPM error"));
++  }
++}
++/* Use the provided protocol object to get format and location of the TPM2
++ * eventlog. Traversing the event log to process individual events requires
++ * understanding their format.
++ */
++grub_err_t
++grub_tpm2_get_eventlog (EFI_TCG2_PROTOCOL *tpm2_prot,
++                        grub_uint32_t format,
++                        grub_efi_physical_address_t *first,
++                        grub_efi_physical_address_t *last,
++                        grub_efi_boolean_t *truncated)
++{
++  grub_efi_physical_address_t first_p = 0, last_p = 0;
++  grub_efi_boolean_t truncated_p = 0;
++  grub_efi_status_t status;
++
++  status = efi_call_5 (tpm2_prot->GetEventLog,
++                       tpm2_prot,
++                       format,
++                       &first_p,
++                       &last_p,
++                       &truncated_p);
++  switch (status) {
++  case GRUB_EFI_SUCCESS:
++    *first = first_p;
++    *last = last_p;
++    *truncated = truncated_p;
++    return 0;
++  case GRUB_EFI_DEVICE_ERROR:
++    return grub_error(GRUB_ERR_IO, N_("Command failed"));
++  case GRUB_EFI_INVALID_PARAMETER:
++    return grub_error(GRUB_ERR_BAD_ARGUMENT, N_("Invalid parameter"));
++  case GRUB_EFI_BUFFER_TOO_SMALL:
++    return grub_error(GRUB_ERR_BAD_ARGUMENT, N_("Buffer too small"));
++  default:
++    return grub_error(GRUB_ERR_UNKNOWN_DEVICE, N_("Unknown TPM error"));
++  }
++}
++
++/* Use the provided protocol object to measure / hash data_size bytes
++ * of the provided data buffer. This hash is then extended into some PCR.
++ * The hash algorightm and PCR are determined by event structure.
++ */
++grub_err_t
++grub_tpm2_extend (EFI_TCG2_PROTOCOL *tpm2_prot,
++                  grub_efi_uint64_t flags,
++                  char *data,
++                  grub_efi_uint64_t data_size,
++                  EFI_TCG2_EVENT *event)
++{
++  grub_efi_status_t status;
++  grub_efi_physical_address_t data_addr;
++
++/* Ignore warnings caused by casting to EFI physical address type */
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
++  data_addr = (grub_efi_physical_address_t)data;
++#pragma GCC diagnostic pop
++
++  status = efi_call_5 (tpm2_prot->HashLogExtendEvent,
++                       tpm2_prot,
++                       flags,
++                       data_addr,
++                       data_size,
++                       event);
++  switch (status) {
++  case GRUB_EFI_SUCCESS:
++    return 0;
++  case GRUB_EFI_DEVICE_ERROR:
++    return grub_error(GRUB_ERR_IO, N_("Command failed"));
++  case GRUB_EFI_VOLUME_FULL:
++    grub_printf ("Extend occurred but the event log was not updated.");
++    return 0;
++  case GRUB_EFI_INVALID_PARAMETER:
++    return grub_error(GRUB_ERR_BAD_ARGUMENT, N_("Invalid parameter"));
++  case GRUB_EFI_UNSUPPORTED:
++    return grub_error(GRUB_ERR_BAD_ARGUMENT, N_("PE/COFF image type is not supported"));
++  default:
++    return grub_error(GRUB_ERR_UNKNOWN_DEVICE, N_("Unknown TPM error"));
++  }
++}
++
++/*  A convenience function to extend a buffer into the specified PCR.
++ *  The buffer is accompanied by a string description of what's being
++ *  measured.
++ */
++grub_err_t
++grub_tpm2_extend_buf (grub_uint8_t *buf,
++                      grub_efi_uint64_t buf_len,
++                      const char *desc,
++                      grub_uint32_t pcr)
++{
++  EFI_TCG2_PROTOCOL *tpm2_prot = NULL;
++  EFI_TCG2_EVENT *event = NULL;
++  grub_efi_uint64_t flags = 0, event_size = 0, desc_len = 0;
++  grub_err_t err = 0;
++
++  err = grub_tpm2_get_protocol (&tpm2_prot);
++  if (err)
++    return err;
++  else if (!tpm2_prot)
++    return 0;
++
++  desc_len = grub_strlen(desc) + 1;
++  event_size = sizeof (EFI_TCG2_EVENT) + desc_len;
++  event = (EFI_TCG2_EVENT*)grub_malloc(event_size);
++  if (!event)
++    return grub_error (GRUB_ERR_OUT_OF_MEMORY,
++                       N_("cannot allocate TPM2 event buffer"));
++  grub_memcpy (event->Event, desc, desc_len);
++  event->Header.HeaderSize = sizeof(EFI_TCG2_EVENT_HEADER);
++  event->Header.HeaderVersion = 1;
++  event->Header.PCRIndex = pcr;
++  event->Header.EventType = EV_IPL;
++  event->Size = event_size;
++
++  err = grub_tpm2_extend(tpm2_prot, flags, (char*)buf, buf_len, event);
++  grub_free(event);
++  return err;
++}
++
++/* Extend buffer with length buf_len into PCR pcr. The prefix and desc
++ * strings are concatenated and used in the event structure to provide
++ * a description of the event.
++ */
++grub_err_t
++grub_tpm2_extend_buf_prefix (grub_uint8_t *buf,
++                             grub_efi_uint64_t buf_len,
++                             const char *prefix,
++                             const char *desc,
++                             grub_uint32_t pcr)
++{
++  grub_efi_uint64_t desc_len = 0, prefix_len = 0;
++  char *msg = NULL;
++  grub_err_t tpm_err = 0;
++
++  /* setup message to accompnay extend operation */
++  prefix_len = grub_strlen (prefix);
++  desc_len = grub_strlen (desc);
++  msg = grub_malloc (prefix_len + desc_len + 1);
++  if (!msg)
++    return grub_error (GRUB_ERR_OUT_OF_MEMORY,
++                       N_("failed to allocate buffer"));
++  grub_memcpy (msg, prefix, prefix_len);
++  grub_memcpy (msg + prefix_len, desc, desc_len + 1);
++  tpm_err = grub_tpm2_extend_buf (buf, buf_len, msg, pcr);
++  grub_free (msg);
++  return tpm_err;
++}
++
++grub_err_t
++grub_tpm2_extend_kernel (grub_uint8_t *buf,
++                         grub_efi_uint64_t buf_len,
++                         const char *desc)
++{
++  return grub_tpm2_extend_buf_prefix (buf,
++                                      buf_len,
++                                      N_("Grub2 Linux kernel: "),
++                                      desc,
++                                      PCR_BIN);
++}
++
++grub_err_t
++grub_tpm2_extend_initrd (grub_uint8_t *buf,
++                         grub_efi_uint64_t buf_len,
++                         const char *desc)
++{
++  return grub_tpm2_extend_buf_prefix (buf,
++                                      buf_len,
++                                      N_("Grub2 Linux initrd: "),
++                                      desc,
++                                      PCR_BIN);
++}
++
++grub_err_t
++grub_tpm2_extend_cfgstr (const char *buf,
++                         const char *desc)
++{
++  return grub_tpm2_extend_buf ((grub_uint8_t*)buf,
++                               grub_strlen (buf),
++                               desc,
++                               PCR_CFG);
++}
++
++grub_err_t
++grub_tpm2_extend_dl (grub_uint8_t *buf,
++                     grub_efi_uint64_t buf_len,
++                     const char *desc)
++{
++  return grub_tpm2_extend_buf_prefix (buf,
++                                      buf_len,
++                                      N_("Grub2 dl module: "),
++                                      desc,
++                                      PCR_BIN);
++}
++
++grub_err_t
++grub_tpm2_extend_cmd (const char *cmd)
++{
++  return grub_tpm2_extend_buf_prefix ((grub_uint8_t*)cmd,
++                                      grub_strlen (cmd),
++                                      N_("Grub2 command: "),
++                                      cmd,
++                                      PCR_CFG);
++}
+diff --git a/include/grub/efi/tpm12.h b/include/grub/efi/tpm12.h
+new file mode 100644
+index 0000000..2432fc9
+--- /dev/null
++++ b/include/grub/efi/tpm12.h
+@@ -0,0 +1,26 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2016  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#include <grub/efi/tpm12_types.h>
++
++typedef struct {
++  TCG_PCRINDEX  PCRIndex;
++  TCG_EVENTTYPE EventType;
++  TCG_DIGEST    digest;
++  UINT32        EventSize;
++  UINT8         Event[1];
++} GRUB_PACKED TCG_PCR_EVENT;
+diff --git a/include/grub/efi/tpm12_types.h b/include/grub/efi/tpm12_types.h
+new file mode 100644
+index 0000000..df33e2e
+--- /dev/null
++++ b/include/grub/efi/tpm12_types.h
+@@ -0,0 +1,89 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2016  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#ifndef GRUB_EFI_TPM12_TYPES
++#define GRUB_EFI_TPM12_TYPES 1
++
++#include <grub/efi/efi.h>
++
++#ifndef UINT64
++#define UINT64 grub_efi_uint64_t
++#endif
++
++#ifndef UINT32
++#define UINT32 grub_efi_uint32_t
++#endif
++
++#ifndef UINT16
++#define UINT16 grub_efi_uint16_t
++#endif
++
++#ifndef UINT8
++#define UINT8 grub_efi_uint8_t
++#endif
++
++#define SHA1_DIGEST_SIZE 20
++
++typedef struct {
++  UINT8 Digest[SHA1_DIGEST_SIZE];
++} GRUB_PACKED TPM_DIGEST;
++
++typedef TPM_DIGEST TCG_DIGEST;
++typedef TCG_DIGEST TCG_COMPOSITE_HASH;
++typedef UINT32 TCG_EVENTTYPE;
++typedef UINT32 TPM_PCRINDEX;
++typedef TPM_PCRINDEX TCG_PCRINDEX;
++
++/* Log event types. These are spread out over 2 specs:
++ * "TCG EFI Protocol Specification For TPM Family 1.1 or 1.2" and
++ * "TCG PC Client Specific Implementation Specification for Conventional BIOS"
++ */
++#define EV_PREBOOT_CERT            0x0
++#define EV_POST_CODE               0x1
++#define EV_UNUSED                  0x2
++#define EV_NO_ACTION               0x3
++#define EV_SEPARATOR               0x4
++#define EV_ACTION                  0x5
++#define EV_EVENT_TAG               0x6
++#define EV_S_CRTM_CONTENTS         0x7
++#define EV_S_CRTM_VERSION          0x8
++#define EV_CPU_MICROCODE           0x9
++#define EV_PLATFORM_CONFIG_FLAGS   0xa
++#define EV_TABLE_OF_DEVICES        0xb
++#define EV_COMPACT_HASH            0xc
++#define EV_IPL                     0xd
++#define EV_IPL_PARTITION_DATA      0xe
++#define EV_NONHOST_CODE            0xf
++#define EV_NONHOST_CONFIG          0x10
++#define EV_NONHOST_INFO            0x11
++#define EV_OMIT_BOOT_DEVICE_EVENTS 0x12
++
++/* TCG EFI Platform Specification For TPM Family 1.1 or 1.2
++ */
++#define EV_EFI_EVENT_BASE                0x80000000
++#define EV_EFI_VARIABLE_DRIVER_CONFIG    EV_EFI_EVENT_BASE + 0x1
++#define EV_EFI_VARIABLE_BOOT             EV_EFI_EVENT_BASE + 0x2
++#define EV_EFI_BOOT_SERVICES_APPLICATION EV_EFI_EVENT_BASE + 0x3
++#define EV_EFI_BOOT_SERVICES_DRIVER      EV_EFI_EVENT_BASE + 0x4
++#define EV_EFI_RUNTIME_SERVICES_DRIVER   EV_EFI_EVENT_BASE + 0x5
++#define EV_EFI_GPT_EVENT                 EV_EFI_EVENT_BASE + 0x6
++#define EV_EFI_ACTION                    EV_EFI_EVENT_BASE + 0x7
++#define EV_EFI_PLATFORM_FIRMWARE_BLOB    EV_EFI_EVENT_BASE + 0x8
++#define EV_EFI_HANDOFF_TABLES            EV_EFI_EVENT_BASE + 0x9
++#define EV_EFI_VARIABLE_AUTHORITY        EV_EFI_EVENT_BASE + 0xe0
++
++#endif /* GRUB_EFI_TPM12_TYPES */
+diff --git a/include/grub/efi/tpm2.h b/include/grub/efi/tpm2.h
+new file mode 100644
+index 0000000..71490a7
+--- /dev/null
++++ b/include/grub/efi/tpm2.h
+@@ -0,0 +1,73 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2016  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#ifndef GRUB_TCG2_PROTOCOL
++#define GRUB_TCG2_PROTOCOL 1
++
++#include <grub/efi/efi.h>
++#include <grub/efi/tpm2_types.h>
++#include <grub/err.h>
++
++/* Functions to wrap interaction with bare EFI protocol invocation.
++ */
++grub_err_t
++EXPORT_FUNC(grub_tpm2_get_protocol)(EFI_TCG2_PROTOCOL **prot);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_get_capability)(EFI_TCG2_PROTOCOL *tpm2_prot,
++                                      EFI_TCG2_BOOT_SERVICE_CAPABILITY *caps);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_get_eventlog)(EFI_TCG2_PROTOCOL *tpm2_prot,
++                                    grub_uint32_t format,
++                                    grub_efi_physical_address_t *first,
++                                    grub_efi_physical_address_t *last,
++                                    grub_efi_boolean_t *truncated);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_extend)(EFI_TCG2_PROTOCOL *tpm2_prot,
++                              grub_efi_uint64_t flags,
++                              char *data,
++                              grub_efi_uint64_t data_size,
++                              EFI_TCG2_EVENT *event);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_extend_buf)(grub_uint8_t *buf,
++                                  grub_efi_uint64_t buf_len,
++                                  const char *desc,
++                                  grub_uint32_t pcr);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_extend_buf_prefix) (grub_uint8_t *buf,
++                                          grub_efi_uint64_t buf_len,
++                                          const char *prefix,
++                                          const char *desc,
++                                          grub_uint32_t pcr);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_extend_kernel) (grub_uint8_t *buf,
++                                      grub_efi_uint64_t buf_len,
++                                      const char *desc);
++grub_err_t
++EXPORT_FUNC(grub_tpm2_extend_initrd) (grub_uint8_t *buf,
++                                      grub_efi_uint64_t buf_len,
++                                      const char *desc);
++grub_err_t
++EXPORT_FUNC (grub_tpm2_extend_cfgstr) (const char *buf,
++                                       const char *desc);
++grub_err_t
++EXPORT_FUNC (grub_tpm2_extend_dl) (grub_uint8_t *buf,
++                                   grub_efi_uint64_t buf_len,
++                                   const char *desc);
++grub_err_t
++EXPORT_FUNC (grub_tpm2_extend_cmd) (const char *cmd);
++
++#endif /* GRUB_TCG2_PROTOCOL */
+diff --git a/include/grub/efi/tpm2_types.h b/include/grub/efi/tpm2_types.h
+new file mode 100644
+index 0000000..d1dd283
+--- /dev/null
++++ b/include/grub/efi/tpm2_types.h
+@@ -0,0 +1,195 @@
++/*
++ *  GRUB  --  GRand Unified Bootloader
++ *  Copyright (C) 2016  Free Software Foundation, Inc.
++ *
++ *  GRUB is free software: you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation, either version 3 of the License, or
++ *  (at your option) any later version.
++ *
++ *  GRUB is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with GRUB.  If not, see <http://www.gnu.org/licenses/>.
++ */
++#ifndef GRUB_EFI_TCG2_TYPES
++#define GRUB_EFI_TCG2_TYPES 1
++
++#include <grub/efi/api.h>
++#include <grub/efi/efi.h>
++/* TCG EFI spec requires 'EFIAPI' function pointer type. Just a way
++ * to work around limitations in compilers that require __cdecl?
++ */
++#ifndef EFIAPI
++#define EFIAPI
++#endif
++
++/* IN / OUT denote parameter directionality in TCG EFI spec. They
++ * don't do anything, just for readiility I guess.
++ */
++#ifndef IN
++#define IN
++#endif
++
++#ifndef OUT
++#define OUT
++#endif
++
++/* basic type mapping from TCG spec to grub types */
++#ifndef UINT64
++#define UINT64 grub_efi_uint64_t
++#endif
++
++#ifndef UINT32
++#define UINT32 grub_efi_uint32_t
++#endif
++
++#ifndef UINT16
++#define UINT16 grub_efi_uint16_t
++#endif
++
++#ifndef UINT8
++#define UINT8 grub_efi_uint8_t
++#endif
++
++typedef grub_efi_boolean_t BOOLEAN;
++typedef grub_efi_status_t  EFI_STATUS;
++typedef UINT32             TCG_PCRINDEX;
++typedef UINT32             TCG_EVENTTYPE;
++
++typedef grub_efi_physical_address_t EFI_PHYSICAL_ADDRESS;
++typedef UINT32 EFI_TCG2_EVENT_LOG_BITMAP;
++typedef UINT32 EFI_TCG2_EVENT_LOG_FORMAT;
++typedef UINT32 EFI_TCG2_EVENT_ALGORITHM_BITMAP;
++
++#define EFI_TCG2_PROTOCOL_GUID \
++  { 0x607f766c, 0x7455, 0x42be, \
++    { 0x93, 0x0b, 0xe4, 0xd7, 0x6d, 0xb2, 0x72, 0x0f } \
++  }
++
++/* values for EFI_TCG2_EVENT_LOG_FORMAT */
++#define EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2 0x00000001
++#define EFI_TCG2_EVENT_LOG_FORMAT_TCG_2   0x00000002
++
++/* values for EFI_TCG2_EVENT_ALGORITHM_BITMAP */
++#define EFI_TCG2_BOOT_HASH_ALG_SHA1    0x00000001
++#define EFI_TCG2_BOOT_HASH_ALG_SHA256  0x00000002
++#define EFI_TCG2_BOOT_HASH_ALG_SHA384  0x00000004
++#define EFI_TCG2_BOOT_HASH_ALG_SHA512  0x00000008
++#define EFI_TCG2_BOOT_HASH_ALG_SM3_256 0x00000010
++
++typedef struct tdEFI_TCG2_PROTOCOL EFI_TCG2_PROTOCOL;
++
++/* structures */
++typedef struct tdEFI_TCG2_EVENT_HEADER {
++  UINT32        HeaderSize;
++  UINT16        HeaderVersion;
++  TCG_PCRINDEX  PCRIndex;
++  TCG_EVENTTYPE EventType;
++} GRUB_PACKED EFI_TCG2_EVENT_HEADER;
++
++typedef struct tdEFI_TCG2_EVENT {
++  UINT32                Size;
++  EFI_TCG2_EVENT_HEADER Header;
++  UINT8                 Event[];
++} GRUB_PACKED EFI_TCG2_EVENT;
++
++typedef struct tdEFI_TCG2_VERSION {
++  UINT8 Major;
++  UINT8 Minor;
++} GRUB_PACKED EFI_TCG2_VERSION;
++
++/* This structure not packed per the TrEE protocol spec.
++ * Microsoft and TCG disagree on this currently but TCG will likely adopt the
++ * same convention as Win10 is deployed and TCG protocol spec is still
++ * under public review.
++ */
++typedef struct tdEFI_TCG2_BOOT_SERVICE_CAPABILITY {
++  UINT8                           Size;
++  EFI_TCG2_VERSION                StructureVersion;
++  EFI_TCG2_VERSION                ProtocolVersion;
++  EFI_TCG2_EVENT_ALGORITHM_BITMAP HashAlgorithmBitmap;
++  EFI_TCG2_EVENT_LOG_BITMAP       SupportedEventLogs;
++  BOOLEAN                         TPMPresentFlag;
++  UINT16                          MaxCommandSize;
++  UINT16                          MaxResponseSize;
++  UINT32                          ManufacturerID;
++  UINT32                          NumberOfPcrBanks;
++  EFI_TCG2_EVENT_ALGORITHM_BITMAP ActivePcrBanks;
++} EFI_TCG2_BOOT_SERVICE_CAPABILITY;
++
++/* function types */
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_GET_CAPABILITY) (
++  IN EFI_TCG2_PROTOCOL                    *This,
++  IN OUT EFI_TCG2_BOOT_SERVICE_CAPABILITY *ProtocolCapability
++);
++
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_GET_EVENT_LOG) (
++  IN  EFI_TCG2_PROTOCOL         *This,
++  IN  EFI_TCG2_EVENT_LOG_FORMAT EventLogFormat,
++  OUT EFI_PHYSICAL_ADDRESS      *EventLogLocation,
++  OUT EFI_PHYSICAL_ADDRESS      *EventLogLastEntry,
++  OUT BOOLEAN                   *EventLogTruncated
++);
++
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_HASH_LOG_EXTEND_EVENT) (
++  IN EFI_TCG2_PROTOCOL    *This,
++  IN UINT64               Flags,
++  IN EFI_PHYSICAL_ADDRESS DataToHash,
++  IN UINT64               DataToHashLen,
++  IN EFI_TCG2_EVENT       *EfiTcgEvent
++);
++
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_SUBMIT_COMMAND) (
++  IN EFI_TCG2_PROTOCOL *This,
++  IN UINT32            InputParameterBlockSize,
++  IN UINT8             *InputParameterBlock,
++  IN UINT32            OutputParameterBlockSize,
++  IN UINT8             *OutputParameterBlock
++);
++
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_GET_ACTIVE_PCR_BANKS) (
++  IN  EFI_TCG2_PROTOCOL *This,
++  OUT UINT32            *ActivePcrBanks
++);
++
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_SET_ACTIVE_PCR_BANKS) (
++  IN EFI_TCG2_PROTOCOL *This,
++  IN UINT32            ActivePcrBanks
++);
++
++typedef
++EFI_STATUS
++(EFIAPI *EFI_TCG2_GET_RESULT_OF_SET_ACTIVE_PCR_BANKS) (
++  IN  EFI_TCG2_PROTOCOL *This,
++  OUT UINT32            *OperationPresent,
++  OUT UINT32            *Response
++);
++
++/* Protocol definition */
++typedef struct tdEFI_TCG2_PROTOCOL {
++  EFI_TCG2_GET_CAPABILITY                      GetCapability;
++  EFI_TCG2_GET_EVENT_LOG                       GetEventLog;
++  EFI_TCG2_HASH_LOG_EXTEND_EVENT               HashLogExtendEvent;
++  EFI_TCG2_SUBMIT_COMMAND                      SubmitCommand;
++  EFI_TCG2_GET_ACTIVE_PCR_BANKS                GetActivePcrBanks;
++  EFI_TCG2_SET_ACTIVE_PCR_BANKS                SetActivePcrBanks;
++  EFI_TCG2_GET_RESULT_OF_SET_ACTIVE_PCR_BANKS  GetResultOfSetActivePcrBanks;
++} GRUB_PACKED EFI_TCG2_PROTOCOL;
++
++#endif /* GRUB_EFI_TCG2_TYPES */
+-- 
+2.1.4
+

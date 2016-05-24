@@ -9,10 +9,19 @@ PV = "2.02-beta3"
 SRCREV = "${PV}"
 SRC_URI = " \
     git://git.savannah.gnu.org/grub.git;protocol=git;branch=master;name=grub;destsuffix=grub \
-    file://cfg \
+    file://0001-tpm2-Add-types-and-functions-to-use-UEFI-TCG-command.patch \
+    file://0002-tpm2cmd-Add-new-commands-for-basic-interaction-with-.patch \
+    file://0003-tpm2cmd-Add-sendlog-command.patch \
+    file://0004-Rework-linux-command.patch \
+    file://0005-linux-Measure-the-kernel-image.patch \
+    file://0006-linux-Measure-kernel-command-line.patch \
+    file://0007-initrd-Measure-initrd-files-as-they-re-loaded.patch \
+    file://0008-dl-Measure-dynamic-modules.patch \
+    file://0009-execute-Measure-commands.patch \
     file://0001-grub.d-10_linux.in-add-oe-s-kernel-name.patch \
     file://0001-Disable-mfpmath-sse-as-well-when-SSE-is-disabled.patch \
     file://autogen.sh-exclude-pc.patch \
+    file://cfg \
 "
 
 S = "${WORKDIR}/grub"

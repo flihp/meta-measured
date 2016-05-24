@@ -1,0 +1,44 @@
+From 4846f7fdc1c5a32503c8e749accd0e6d699f3890 Mon Sep 17 00:00:00 2001
+From: Philip Tricca <philip.b.tricca@intel.com>
+Date: Fri, 12 Feb 2016 09:25:03 -0800
+Subject: [PATCH 8/9] dl: Measure dynamic modules.
+
+Signed-off-by: Philip Tricca <philip.b.tricca@intel.com>
+---
+ grub-core/kern/dl.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/grub-core/kern/dl.c b/grub-core/kern/dl.c
+index e394cd9..9c98887 100644
+--- a/grub-core/kern/dl.c
++++ b/grub-core/kern/dl.c
+@@ -33,6 +33,10 @@
+ #include <grub/cache.h>
+ #include <grub/i18n.h>
+ 
++#ifdef GRUB_MACHINE_EFI
++#include <grub/efi/tpm2.h>
++#endif
++
+ /* Platforms where modules are in a readonly area of memory.  */
+ #if defined(GRUB_MACHINE_QEMU)
+ #define GRUB_MODULES_MACHINE_READONLY
+@@ -712,6 +716,15 @@ grub_dl_load_file (const char *filename)
+      opens of the same device.  */
+   grub_file_close (file);
+ 
++#ifdef GRUB_MACHINE_EFI
++  grub_boot_time ("Measuring module")
++  if (grub_tpm2_extend_dl (core, size, filename) != GRUB_ERR_NONE)
++    {
++      grub_free (core);
++      return 0;
++    }
++#endif
++
+   mod = grub_dl_load_core (core, size);
+   grub_free (core);
+   if (! mod)
+-- 
+2.1.4
+

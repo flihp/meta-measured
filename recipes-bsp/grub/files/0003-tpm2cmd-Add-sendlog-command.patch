@@ -1,0 +1,174 @@
+From c4b4a0ea8fdf5e5127e4f95a10727107c403f226 Mon Sep 17 00:00:00 2001
+From: Philip Tricca <flihp@twobit.us>
+Date: Wed, 18 Nov 2015 08:49:53 -0800
+Subject: [PATCH 3/9] tpm2cmd: Add sendlog command.
+
+This command creates a UEFI configuration table and copies the event
+log into this table. This is one way, probably not the right way, to
+get the log to survive ExitBootServices().
+---
+ grub-core/commands/efi/tpm2cmd.c | 115 +++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 115 insertions(+)
+
+diff --git a/grub-core/commands/efi/tpm2cmd.c b/grub-core/commands/efi/tpm2cmd.c
+index a71edd5..a04c708 100644
+--- a/grub-core/commands/efi/tpm2cmd.c
++++ b/grub-core/commands/efi/tpm2cmd.c
+@@ -29,6 +29,8 @@
+ 
+ GRUB_MOD_LICENSE ("GPLv3+");
+ 
++#define BYTES_TO_PAGES(bytes)   (((bytes) + 0xfff) >> 12)
++
+ static const struct grub_arg_option opts_dumplog[] =
+   {
+     { "format", 'f', 0, N_("log format"), N_("(1.2|2.0)"), ARG_TYPE_STRING },
+@@ -46,6 +48,13 @@ static const struct grub_arg_option opts_extend[] =
+     { 0 }
+   };
+ 
++static const struct grub_arg_option opts_sendlog[] =
++  {
++    { "help", 'h', 0, N_("display help message"), NULL, ARG_TYPE_NONE },
++    { "format", 'f', 0, N_("log format"), N_("(1.2|2.0)"), ARG_TYPE_STRING },
++    { 0 }
++  };
++
+ static const struct grub_arg_option opts_help[] =
+   {
+     { "help", 'h', 0, N_("display help message"), NULL, ARG_TYPE_NONE },
+@@ -73,6 +82,7 @@ static EFI_TCG2_PROTOCOL *g_tpm2;
+ static grub_extcmd_t cmd_dumpcaps;
+ static grub_extcmd_t cmd_dumpeventlog;
+ static grub_extcmd_t cmd_extend;
++static grub_extcmd_t cmd_sendlog;
+ 
+ static void
+ caps_prettyprint (EFI_TCG2_BOOT_SERVICE_CAPABILITY *caps)
+@@ -541,6 +551,103 @@ grub_tpm2cmd_extend (grub_extcmd_context_t ctxt,
+   return err;
+ }
+ 
++typedef struct tdCONFIG_TABLE_LOG
++{
++  grub_uint32_t               format;
++  grub_efi_physical_address_t first;
++  grub_efi_physical_address_t last;
++  grub_efi_boolean_t          truncated;
++  grub_uint8_t                events[];
++} GRUB_PACKED CONFIG_TABLE_LOG;
++
++#define CONFIG_TABLE_LOG_GUID \
++  { 0xe7c0844c, 0x1212, 0x4244, \
++    { 0x92, 0x13, 0xec, 0x88, 0xea, 0xdb, 0x22, 0xcf } \
++  }
++
++static grub_err_t
++grub_tpm2cmd_sendlog (grub_extcmd_context_t ctxt,
++                      int argc __attribute__ ((unused)),
++                      char **args __attribute__ ((unused)))
++{
++  grub_err_t err = GRUB_ERR_NONE;
++  EFI_TCG2_PROTOCOL *tpm2_prot;
++  grub_efi_physical_address_t first, last;
++  grub_uint32_t format = 0;
++  grub_uint64_t log_size;
++  grub_efi_boolean_t truncated;
++  CONFIG_TABLE_LOG *efi_table;
++  grub_efi_guid_t cfgtbl_log_guid = CONFIG_TABLE_LOG_GUID;
++  struct grub_arg_list *state = ctxt->state;
++
++  err = grub_tpm2cmd_get_protocol (&tpm2_prot);
++  if (err)
++    return err;
++  else if (!tpm2_prot)
++    return 0;
++
++  /* Prefer the 1.2 format, or use whatever the user specifies on the command
++   * line.
++   */
++  if (! state [OPTION_FORMAT].set)
++    format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
++  else
++    {
++      if (!grub_strncmp (state[OPTION_FORMAT].arg, "1.2", 3))
++        format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2;
++      if (!grub_strncmp (state[OPTION_FORMAT].arg, "2.0", 3))
++        format = EFI_TCG2_EVENT_LOG_FORMAT_TCG_2;
++      if (format == 0)
++        return grub_error(GRUB_ERR_BAD_ARGUMENT,
++                          N_("Invalid parameter: format must be either \"1.2\""
++                             "or \"2.0\""));
++    }
++
++  err = grub_tpm2_get_eventlog (tpm2_prot, format, &first, &last, &truncated);
++  if (err)
++    return err;
++  /* Calculate how much memory we need for the event log:
++   *   last - first + sizeof (last) + sizeof (header)
++   *     last - first    == size of the log omitting the final element
++   *     sizeof (last)   == last->EventSize - 1
++   *     sizeof (header) == sizeof (CONFIG_TABLE_LOG)
++   */
++  if (format & EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2)
++    {
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
++      log_size = (last - first) + ((TCG_PCR_EVENT*)last)->EventSize - 1;
++#pragma GCC diagnostic pop
++    }
++  else
++    {
++      return grub_error (GRUB_ERR_NOT_IMPLEMENTED_YET,
++                         N_("TCG2 log format not yet supported"));
++    }
++
++  efi_table = grub_efi_allocate_pages (0, BYTES_TO_PAGES (log_size + sizeof (CONFIG_TABLE_LOG)));
++  if (!efi_table)
++    return grub_errno;
++  /* Populate configuration table */
++  efi_table->format = format;
++  if (format & EFI_TCG2_EVENT_LOG_FORMAT_TCG_1_2)
++    {
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wpointer-to-int-cast"
++      efi_table->first = (grub_efi_physical_address_t)(efi_table + sizeof (CONFIG_TABLE_LOG));
++      efi_table->last  = (grub_efi_physical_address_t)((last - first) + efi_table->first);
++#pragma GCC diagnostic pop
++    }
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
++  grub_memcpy ((char*)(efi_table->first), (char*)first, log_size);
++#pragma GCC diagnostic pop
++  /* set the new config table */
++  grub_efi_system_table->boot_services->install_configuration_table
++      (&cfgtbl_log_guid, efi_table);
++  return err;
++}
++
+ GRUB_MOD_INIT(tpm2cmd)
+ {
+   cmd_dumpcaps =
+@@ -564,6 +671,13 @@ GRUB_MOD_INIT(tpm2cmd)
+                           N_("[-h][-p 0-23][-t 0x0-0xffffffff] [-s STRING | -f FILE]"),
+                           N_("Extend data into specified PCR."),
+                           opts_extend);
++  cmd_sendlog =
++    grub_register_extcmd (N_("tpm2sendlog"),
++                          grub_tpm2cmd_sendlog,
++                          GRUB_COMMAND_FLAG_EXTCMD,
++                          N_("[-h][-f (1.2|2.0)]"),
++                          N_("Copy TPM2 event log to EFI configuration table"),
++                          opts_sendlog);
+ }
+ 
+ GRUB_MOD_FINI(tpm2cmd)
+@@ -571,4 +685,5 @@ GRUB_MOD_FINI(tpm2cmd)
+   grub_unregister_extcmd (cmd_dumpcaps);
+   grub_unregister_extcmd (cmd_dumpeventlog);
+   grub_unregister_extcmd (cmd_extend);
++  grub_unregister_extcmd (cmd_sendlog);
+ }
+-- 
+2.1.4
+

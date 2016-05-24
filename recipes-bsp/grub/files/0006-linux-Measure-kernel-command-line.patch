@@ -1,0 +1,30 @@
+From 209eb04bc27fd5033c10ad2114fb5f3bbcaf5a11 Mon Sep 17 00:00:00 2001
+From: Philip Tricca <philip.b.tricca@intel.com>
+Date: Mon, 11 Jan 2016 13:13:32 -0800
+Subject: [PATCH 6/9] linux: Measure kernel command line.
+
+---
+ grub-core/loader/i386/linux.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/grub-core/loader/i386/linux.c b/grub-core/loader/i386/linux.c
+index 0610c27..8f0c45c 100644
+--- a/grub-core/loader/i386/linux.c
++++ b/grub-core/loader/i386/linux.c
+@@ -1031,6 +1031,13 @@ grub_cmd_linux (grub_command_t cmd __attribute__ ((unused)),
+ 			      maximal_cmdline_size
+ 			      - (sizeof (LINUX_IMAGE) - 1));
+ 
++#ifdef GRUB_MACHINE_EFI
++  tpm_err = grub_tpm2_extend_cfgstr (linux_cmdline + sizeof (LINUX_IMAGE) +
++                                       grub_strlen (argv[0]),
++                                     N_("Grub2 Linux command line"));
++  if (tpm_err != GRUB_ERR_NONE)
++    goto fail;
++#endif /* GRUB_MACHINE_EFI */
+   len = prot_file_size;
+   grub_memcpy (prot_mode_mem, kernel + kernel_offset, len);
+ 
+-- 
+2.1.4
+

@@ -1,0 +1,53 @@
+From 1fe1f6ce39483429db9a65756d07b58558330088 Mon Sep 17 00:00:00 2001
+From: Philip Tricca <philip.b.tricca@intel.com>
+Date: Thu, 11 Feb 2016 13:52:40 -0800
+Subject: [PATCH 7/9] initrd: Measure initrd files as they're loaded.
+
+Each initrd file is measured as it's loaded into memory. We measure each
+file individualy (multiple initrds is supported) and we measure them
+before they're decompressed. This unfortunately puts platform specific
+code in a platform independent file. Will require cleanup.
+
+Signed-off-by: Philip Tricca <philip.b.tricca@intel.com>
+---
+ grub-core/loader/linux.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/grub-core/loader/linux.c b/grub-core/loader/linux.c
+index be6fa0f..566c971 100644
+--- a/grub-core/loader/linux.c
++++ b/grub-core/loader/linux.c
+@@ -5,6 +5,11 @@
+ #include <grub/file.h>
+ #include <grub/mm.h>
+ 
++#ifdef GRUB_MACHINE_EFI
++#include <grub/efi/efi.h>
++#include <grub/efi/tpm2.h>
++#endif /* */
++
+ struct newc_head
+ {
+   char magic[6];
+@@ -288,6 +293,18 @@ grub_initrd_load (struct grub_linux_initrd_context *initrd_ctx,
+ 	  grub_initrd_close (initrd_ctx);
+ 	  return grub_errno;
+ 	}
++#ifdef GRUB_MACHINE_EFI
++      grub_err_t tpm_err = GRUB_ERR_NONE;
++      tpm_err = grub_tpm2_extend_initrd (ptr,
++                                         cursize,
++                                         initrd_ctx->components[i].file->name);
++      if (tpm_err != GRUB_ERR_NONE)
++        {
++          free_dir (root);
++          root = 0;
++          return tpm_err;
++        }
++#endif /* GRUB_MACHINE_EFI */
+       ptr += cursize;
+     }
+   if (newc)
+-- 
+2.1.4
+
