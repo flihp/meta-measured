@@ -8,9 +8,9 @@ IMAGE_INSTALL += "\
 	${CORE_IMAGE_BASE_INSTALL} \
 	packagegroup-core-boot \
 	packagegroup-tpm \
+	${@bb.utils.contains('MACHINE_FEATURES', 'tpm2', 'packagegroup-tpm2', '', d)} \
 	kmod \
 	udev-extraconf \
-	${@bb.utils.contains('MACHINE_FEATURES', 'tpm2', 'tpm2.0-tss', '', d)} \
 "
 
 inherit core-image
