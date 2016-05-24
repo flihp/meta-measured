@@ -9,7 +9,8 @@ IMAGE_INSTALL = " \
     udev \
     udev-extraconf \
     base-passwd \
-    packagegroup-tpm \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'tpm',  'packagegroup-tpm',  '', d)} \
+    ${@bb.utils.contains('MACHINE_FEATURES', 'tpm2', 'packagegroup-tpm2', '', d)} \
     coreutils \
     kmod \
     "
