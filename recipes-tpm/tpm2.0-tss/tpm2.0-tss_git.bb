@@ -70,7 +70,7 @@ FILES_libtctisocket-dev = " \
 FILES_libtctisocket-staticdev = "${libdir}/libtctisocket.*a"
 FILES_resourcemgr = "${sbindir}/resourcemgr"
 
-inherit autotools autotools-bootstrap
+inherit autotools
 
 # the autotools / autoconf-archive don't work as expected so we include the
 # pthread macro ourselves for now
@@ -78,5 +78,10 @@ SRC_URI += "file://ax_pthread.m4"
 do_configure_prepend () {
 	mkdir -p ${S}/m4
 	cp ${WORKDIR}/ax_pthread.m4 ${S}/m4
+	# execute the bootstrap script
+	currentdir=$(pwd)
+	cd ${S}
+	./bootstrap --force
+	cd ${currentdir}
 }
 
