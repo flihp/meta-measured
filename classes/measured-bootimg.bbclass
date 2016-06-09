@@ -51,7 +51,7 @@ EOF
 
 # this is uuuuugly
 build_efi_cfg() {
-    cat > ${GRUB_CFG} << EOF
+    cat > ${GRUBCFG} << EOF
 serial --unit=0 --speed=115200 --word=8 --parity=no --stop=1
 default=boot
 timeout=10
@@ -60,9 +60,9 @@ terminal_input console serial
 terminal_output console serial
 EOF
 
-    echo "menuentry 'tboot' {" >> ${GRUB_CFG}
+    echo "menuentry 'tboot' {" >> ${GRUBCFG}
 
-    cat >> ${GRUB_CFG} << EOF
+    cat >> ${GRUBCFG} << EOF
   multiboot2 /tboot.gz ${TBOOT_CMDLINE}
   module2 /vmlinuz ${KERNEL_CMDLINE}
   module2 /initrd
@@ -70,11 +70,11 @@ EOF
   module2 /acm_hsw.bin
 EOF
 
-    echo -e "}\nmenuentry 'not-tboot' {" >> ${GRUB_CFG}
+    echo -e "}\nmenuentry 'not-tboot' {" >> ${GRUBCFG}
 
-    cat >> ${GRUB_CFG} << EOF
+    cat >> ${GRUBCFG} << EOF
   linux /vmlinuz ${KERNEL_CMDLINE}
   initrd /initrd
 EOF
-    echo "}" >> ${GRUB_CFG}
+    echo "}" >> ${GRUBCFG}
 }
