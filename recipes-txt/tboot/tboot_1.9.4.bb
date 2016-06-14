@@ -1,0 +1,4 @@
+include tboot.inc
+
+SRC_URI[md5sum] = "527575023c19ee37823acefe79b3585d"
+SRC_URI[sha256sum] = "7167e5615def4ac0f25b2f9139b3d361a0a20d91386d80b1d865107b3f552f39"

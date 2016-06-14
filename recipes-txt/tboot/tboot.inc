@@ -6,7 +6,7 @@ HOMEPAGE = "http://sourceforge.net/projects/tboot/"
 SECTION = "bootloaders"
 PR = "r0"
 LICENSE = "BSD"
-LIC_FILES_CHKSUM = "file://COPYING;md5=661cd71df9c2b05204f9fef109bb7ff5"
+LIC_FILES_CHKSUM = "file://COPYING;md5=7730ab1e15a162ca347bcc1722486d89"
 DEPENDS = "libtspi openssl zlib"
 DEPENDS_class-native = "trousers-native openssl-native zlib-native"
 
