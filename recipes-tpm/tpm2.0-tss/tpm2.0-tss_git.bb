@@ -16,7 +16,6 @@ DEPENDS = "autoconf-archive"
 SRC_URI = " \
     git://github.com/01org/TPM2.0-TSS.git;protocol=git;branch=master;name=TPM2.0-TSS;destsuffix=TPM2.0-TSS \
     file://no-cmocka-configure-ac.diff \
-    file://no-wall-werror.diff \
     "
 
 # CAPS? SRSLY?
