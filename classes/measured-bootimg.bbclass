@@ -38,7 +38,7 @@ populate_append() {
 }
 
 build_syslinux_cfg () {
-    cat > ${SYSLINUXCFG} << EOF
+    cat > ${SYSLINUX_CFG} << EOF
 ALLOWOPTIONS 1
 DEFAULT boot
 TIMEOUT 10
