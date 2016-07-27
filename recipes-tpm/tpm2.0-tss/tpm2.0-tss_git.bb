@@ -41,31 +41,31 @@ PACKAGES = " \
     resourcemgr \
 "
 
-FILES_libtss2 = "${libdir}/libtss2.so.0.0.0"
+FILES_libtss2 = "${libdir}/libsapi.so.0.0.0"
 FILES_libtss2-dev = " \
-    ${includedir}/tss2 \
+    ${includedir}/sapi \
     ${includedir}/tcti/common.h \
-    ${libdir}/libtss2.so* \
-    ${libdir}/pkgconfig/tss2.pc \
+    ${libdir}/libsapi.so* \
+    ${libdir}/pkgconfig/sapi.pc \
 "
 FILES_libtss2-staticdev = " \
-    ${libdir}/libtss2.a \
-    ${libdir}/libtss2.la \
+    ${libdir}/libsapi.a \
+    ${libdir}/libsapi.la \
 "
-FILES_libtctidevice = "${libdir}/libtctidevice.so.0.0.0"
+FILES_libtctidevice = "${libdir}/libtcti-device.so.0.0.0"
 FILES_libtctidevice-dev = " \
     ${includedir}/tcti/tcti_device.h \
-    ${libdir}/libtctidevice.so* \
-    ${libdir}/pkgconfig/tcti_device.pc \
+    ${libdir}/libtcti-device.so* \
+    ${libdir}/pkgconfig/tcti-device.pc \
 "
-FILES_libtctidevice-staticdev = "${libdir}/libtctidevice.*a"
-FILES_libtctisocket = "${libdir}/libtctisocket.so.0.0.0"
+FILES_libtctidevice-staticdev = "${libdir}/libtcti-device.*a"
+FILES_libtctisocket = "${libdir}/libtcti-socket.so.0.0.0"
 FILES_libtctisocket-dev = " \
     ${includedir}/tcti/tcti_socket.h \
-    ${libdir}/libtctisocket.so* \
-    ${libdir}/pkgconfig/tcti_socket.pc \
+    ${libdir}/libtcti-socket.so* \
+    ${libdir}/pkgconfig/tcti-socket.pc \
 "
-FILES_libtctisocket-staticdev = "${libdir}/libtctisocket.*a"
+FILES_libtctisocket-staticdev = "${libdir}/libtcti-socket.*a"
 FILES_resourcemgr = "${sbindir}/resourcemgr"
 
 inherit autotools
