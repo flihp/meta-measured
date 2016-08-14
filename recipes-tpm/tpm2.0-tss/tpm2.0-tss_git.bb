@@ -11,11 +11,10 @@ LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=377548
 
 # This doesn't seem to work. Keeping it here for completeness. Remove once
 # it's fixed upstream.
-DEPENDS = "autoconf-archive"
+DEPENDS = "autoconf-archive pkgconfig"
 
 SRC_URI = " \
     git://github.com/01org/TPM2.0-TSS.git;protocol=git;branch=master;name=TPM2.0-TSS;destsuffix=TPM2.0-TSS \
-    file://no-cmocka-configure-ac.diff \
     "
 
 # CAPS? SRSLY?
