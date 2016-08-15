@@ -1,0 +1,6 @@
+# Change Log
+
+## Unreleased
+### Changed
+- Fix hashes for tboot 1.9.4 tarballs. Upstream re-released w/o bumping the
+version number.
