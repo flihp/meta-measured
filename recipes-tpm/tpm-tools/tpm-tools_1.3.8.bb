@@ -15,6 +15,7 @@ SRC_URI += " \
     http://downloads.sourceforge.net/project/trousers/tpm-tools/1.3.8/tpm-tools-1.3.8.tar.gz \
     file://tpm-tools-extendpcr.patch \
     file://03-fix-bool-error-parseStringWithValues.patch \
+    file://tpm-tools-gcc-6.patch \
 "
 
 SRC_URI[md5sum] = "85a978c4e03fefd4b73cbeadde7c4d0b"
