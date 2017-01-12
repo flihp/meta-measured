@@ -49,6 +49,8 @@ LABEL boot
 EOF
 }
 
+GRUB_CFG = "${S}/grub.cfg"
+
 # this is uuuuugly
 build_efi_cfg() {
     cat > ${GRUB_CFG} << EOF
