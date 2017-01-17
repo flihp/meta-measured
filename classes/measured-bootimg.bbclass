@@ -49,7 +49,7 @@ LABEL boot
 EOF
 }
 
-GRUB_CFG = "${S}/grub.cfg"
+GRUB_CFG_LIVE = "${S}/grub.cfg"
 
 # this is uuuuugly
 build_efi_cfg() {
