@@ -67,7 +67,7 @@ FILES_libtctisocket-dev = " \
 FILES_libtctisocket-staticdev = "${libdir}/libtcti-socket.*a"
 FILES_resourcemgr = "${sbindir}/resourcemgr"
 
-inherit autotools
+inherit autotools pkgconfig
 
 # the autotools / autoconf-archive don't work as expected so we include the
 # pthread macro ourselves for now
