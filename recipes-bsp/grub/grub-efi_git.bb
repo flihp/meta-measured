@@ -20,6 +20,7 @@ SRC_URI = " \
     file://0009-execute-Measure-commands.patch \
     file://0001-grub.d-10_linux.in-add-oe-s-kernel-name.patch \
     file://0001-Disable-mfpmath-sse-as-well-when-SSE-is-disabled.patch \
+    file://sysmacros.patch \
     file://autogen.sh-exclude-pc.patch \
     file://cfg \
 "
