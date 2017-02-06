@@ -13,7 +13,7 @@ SRCREV = "${AUTOREV}"
 PVBASE := "${PV}"
 PV = "${PVBASE}.${SRCPV}"
 
-inherit autotools
+inherit autotools pkgconfig
 
 do_configure_prepend () {
 	# execute the bootstrap script
