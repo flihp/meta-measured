@@ -11,6 +11,7 @@ IMAGE_INSTALL += "\
 	${@bb.utils.contains('MACHINE_FEATURES', 'tpm2', 'packagegroup-tpm2', '', d)} \
 	kmod \
 	udev-extraconf \
+	rng-tools \
 "
 
 inherit core-image
