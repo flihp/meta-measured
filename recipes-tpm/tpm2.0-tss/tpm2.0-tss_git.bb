@@ -9,9 +9,7 @@ SECTION = "tpm"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=3775480a712fc46a69647678acb234cb"
 
-# This doesn't seem to work. Keeping it here for completeness. Remove once
-# it's fixed upstream.
-DEPENDS = "autoconf-archive pkgconfig"
+DEPENDS = "autoconf-archive"
 
 SRC_URI = " \
     git://github.com/01org/TPM2.0-TSS.git;protocol=git;branch=master;name=TPM2.0-TSS;destsuffix=TPM2.0-TSS \
@@ -69,16 +67,10 @@ FILES_resourcemgr = "${sbindir}/resourcemgr"
 
 inherit autotools pkgconfig
 
-# the autotools / autoconf-archive don't work as expected so we include the
-# pthread macro ourselves for now
-SRC_URI += "file://ax_pthread.m4"
 do_configure_prepend () {
-	mkdir -p ${S}/m4
-	cp ${WORKDIR}/ax_pthread.m4 ${S}/m4
 	# execute the bootstrap script
 	currentdir=$(pwd)
 	cd ${S}
-	./bootstrap --force
+	ACLOCAL="aclocal --system-acdir=${STAGING_DATADIR}/aclocal" ./bootstrap
 	cd ${currentdir}
 }
-
