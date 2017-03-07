@@ -19,6 +19,6 @@ do_configure_prepend () {
 	# execute the bootstrap script
 	currentdir=$(pwd)
 	cd ${S}
-	./bootstrap --force
+	ACLOCAL="aclocal --system-acdir=${WORKDIR}/aclocal-copy" ./bootstrap
 	cd ${currentdir}
 }
