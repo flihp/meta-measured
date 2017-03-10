@@ -9,7 +9,7 @@ SECTION = "tpm"
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=3775480a712fc46a69647678acb234cb"
 
-DEPENDS = "autoconf-archive"
+DEPENDS = "autoconf-archive pkgconfig"
 
 SRC_URI = " \
     git://github.com/01org/TPM2.0-TSS.git;protocol=git;branch=master;name=TPM2.0-TSS;destsuffix=TPM2.0-TSS \
