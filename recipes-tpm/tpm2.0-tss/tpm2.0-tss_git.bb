@@ -40,7 +40,7 @@ PACKAGES = " \
 
 FILES_libtss2 = " \
     ${libdir}/libsapi.so.0.0.0 \
-    ${libdir}/libsapi.so.0.0.0 \
+    ${libdir}/libmarshal.so.0.0.0 \
 "
 FILES_libtss2-dev = " \
     ${includedir}/sapi \
