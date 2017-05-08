@@ -1,1 +1,1 @@
-require linux-yocto.inc
+require linux-yocto-measured.inc
