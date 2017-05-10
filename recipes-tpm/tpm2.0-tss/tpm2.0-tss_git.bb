@@ -2,12 +2,8 @@ SUMMARY = "Software stack for TPM2."
 DESCRIPTION = "tpm2.0-tss like woah."
 SECTION = "tpm"
 
-# This is a lie. The source for this project is covered by several licenses.
-# We're currently working on a way to make this clear for those consuming the
-# project. Till then I'm using 'BSD' as a place holder since the Intel license
-# is "BSD-like".
-LICENSE = "BSD"
-LIC_FILES_CHKSUM = "file://${COREBASE}/meta/files/common-licenses/BSD;md5=3775480a712fc46a69647678acb234cb"
+LICENSE = "BSD-2-Clause"
+LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 
 DEPENDS = "autoconf-archive pkgconfig"
 
