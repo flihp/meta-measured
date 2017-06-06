@@ -82,5 +82,7 @@ FILES_${PN} += "${libdir}/grub/${GRUB_TARGET}-efi \
                 ${datadir}/grub \
                 "
 
+FILES_${PN}-dbg += "${libdir}/grub/${GRUB_TARGET}-efi/.debug"
+
 BBCLASSEXTEND = "native"
 
