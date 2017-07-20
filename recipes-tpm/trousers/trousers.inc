@@ -11,15 +11,11 @@ LICENSE = "CPL-1.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=8031b2ae48ededc9b982c08620573426"
 DEPENDS = "openssl"
 
-SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/0.3.13/trousers-0.3.13.tar.gz \
-            file://07-read_data-not-inline.patch \
+SRC_URI += "http://sourceforge.net/projects/trousers/files/trousers/${PV}/trousers-${PV}.tar.gz \
             file://trousers.init.sh \
             file://trousers-udev.rules \
             file://tcsd.service \
 "
-
-SRC_URI[md5sum] = "ad508f97b406f6e48cd90e85d78e7ca8"
-SRC_URI[sha256sum] = "bb908e4a3c88a17b247a4fc8e0fff3419d8a13170fe7bdfbe0e2c5c082a276d3"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
@@ -60,15 +56,11 @@ FILES_${PN} = " \
 	${sysconfdir} \
 	${localstatedir} \
 	"
-FILES_${PN}-dbg = " \
+FILES_${PN}-dbg += " \
 	${sbindir}/.debug \
-	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tcs \
-	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tcsd \
-	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/tddl \
-	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/trousers \
-	${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/include/trousers \
+	${prefix}/src/debug \
 	"
-FILES_${PN}-doc = " \
+FILES_${PN}-doc += " \
 	${mandir}/man5 \
 	${mandir}/man8 \
 	"
