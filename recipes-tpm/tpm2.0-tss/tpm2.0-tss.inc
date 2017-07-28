@@ -22,7 +22,6 @@ PACKAGES = " \
     libtctisocket \
     libtctisocket-dev \
     libtctisocket-staticdev \
-    resourcemgr \
 "
 
 FILES_libtss2 = " \
@@ -56,7 +55,6 @@ FILES_libtctisocket-dev = " \
     ${libdir}/pkgconfig/tcti-socket.pc \
 "
 FILES_libtctisocket-staticdev = "${libdir}/libtcti-socket.*a"
-FILES_resourcemgr = "${sbindir}/resourcemgr"
 
 inherit autotools pkgconfig
 
