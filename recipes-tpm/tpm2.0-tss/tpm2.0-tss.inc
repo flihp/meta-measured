@@ -5,7 +5,7 @@ SECTION = "tpm"
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 
-DEPENDS = "autoconf-archive pkgconfig"
+DEPENDS = "autoconf-archive-native"
 
 # CAPS? SRSLY?
 S = "${WORKDIR}/${@d.getVar('BPN',d).upper()}"
@@ -61,9 +61,12 @@ FILES_resourcemgr = "${sbindir}/resourcemgr"
 inherit autotools pkgconfig
 
 do_configure_prepend () {
-	# execute the bootstrap script
+	# Execute the bootstrap script, to generate src_vars.mk.
+	# The actual autotools bootstrapping is done by the normal
+	# do_configure, which does a better job with it (for example,
+	# it finds m4 macros also in the native sysroot).
 	currentdir=$(pwd)
 	cd ${S}
-	ACLOCAL="aclocal --system-acdir=${STAGING_DATADIR}/aclocal" ./bootstrap
+	AUTORECONF=true ./bootstrap
 	cd ${currentdir}
 }
