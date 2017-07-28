@@ -1,0 +1,26 @@
+Index: tpm2.0-tools-2.1.0/tools/main.c
+===================================================================
+--- tpm2.0-tools-2.1.0.orig/tools/main.c
++++ tpm2.0-tools-2.1.0/tools/main.c
+@@ -61,7 +61,7 @@ main (int   argc,
+         execute_man (argv[0], envp);
+         fprintf (stderr,
+                  "failed to load manpage, check your environment / PATH\n");
+-        /* no break */
++        exit (1);
+     case 2:
+         exit (1);
+     }
+Index: tpm2.0-tools-2.1.0/tools/tpm2_dump_capability.c
+===================================================================
+--- tpm2.0-tools-2.1.0.orig/tools/tpm2_dump_capability.c
++++ tpm2.0-tools-2.1.0/tools/tpm2_dump_capability.c
+@@ -595,7 +595,7 @@ dump_tpm_capability (TPMU_CAPABILITIES
+     case TPM_CAP_COMMANDS:
+         dump_command_attr_array (capabilities->command.commandAttributes,
+                                  capabilities->command.count);
+-        /* no break */
++        break;
+     default:
+         return 1;
+     }
