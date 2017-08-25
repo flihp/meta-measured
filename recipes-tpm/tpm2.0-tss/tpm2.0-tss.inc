@@ -1,4 +1,4 @@
-SUMMARY = "Software stack for TPM2."
+SUMMARY = "The TCG TPM2 Software Stack"
 DESCRIPTION = "tpm2.0-tss like woah."
 SECTION = "tpm"
 
@@ -13,6 +13,7 @@ S = "${WORKDIR}/${@d.getVar('BPN',d).upper()}"
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
     ${PN}-dbg \
+    ${PN}-doc \
     libtss2 \
     libtss2-dev \
     libtss2-staticdev \
