@@ -1,4 +1,4 @@
-SUMMARY = "Software stack for TPM2."
+SUMMARY = "The TCG TPM2 Software Stack"
 DESCRIPTION = "tpm2-tss like woah."
 SECTION = "tpm"
 
@@ -12,6 +12,7 @@ S = "${WORKDIR}/${BPN}"
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
     ${PN}-dbg \
+    ${PN}-doc \
     libtss2 \
     libtss2-dev \
     libtss2-staticdev \
