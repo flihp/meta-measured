@@ -1,5 +1,5 @@
 SUMMARY = "Software stack for TPM2."
-DESCRIPTION = "tpm2.0-tss like woah."
+DESCRIPTION = "tpm2-tss like woah."
 SECTION = "tpm"
 
 LICENSE = "BSD-2-Clause"
@@ -7,8 +7,7 @@ LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 
 DEPENDS = "autoconf-archive-native"
 
-# CAPS? SRSLY?
-S = "${WORKDIR}/${@d.getVar('BPN',d).upper()}"
+S = "${WORKDIR}/${BPN}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
