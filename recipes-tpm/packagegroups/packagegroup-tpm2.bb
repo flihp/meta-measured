@@ -12,5 +12,5 @@ RDEPENDS_packagegroup-tpm2 = "\
     libtctisocket \
     kernel-module-tpm-crb \
     tpm2-abrmd \
-    tpm2.0-tools \
+    tpm2-tools \
 "
