@@ -5,7 +5,7 @@ SECTION = "tpm"
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 
-DEPENDS = "autoconf-archive dbus glib-2.0 glib-2.0-native pkgconfig libtctidevice libtss2"
+DEPENDS = "autoconf-archive-native dbus glib-2.0 glib-2.0-native pkgconfig libtctidevice libtss2"
 RDEPENDS_${PN} = "libgcc"
 
 SRC_URI = " \
