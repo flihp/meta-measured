@@ -31,7 +31,7 @@ syslinux_iso_populate_append() {
 }
 
 # have bootimg populate function grab tboot and ACM
-populate_append() {
+efi_populate_append() {
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/tboot-${MACHINE}.gz ${DEST}/tboot.gz
 	install -m 0644 ${DEPLOY_DIR_IMAGE}/acm_*.bin ${DEST}/
         lcp_mlehash -c "${TBOOT_CMDLINE}" ${DEST}/tboot.gz > ${DEST}/mlehash
