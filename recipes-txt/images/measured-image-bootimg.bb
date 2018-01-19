@@ -14,7 +14,7 @@ ROOTFS = "${DEPLOY_DIR_IMAGE}/${ROOTFS_IMAGE}-${MACHINE}.ext4"
 
 NOHDD = "1"
 
-TBOOT_CMDLINE = "loglvl=all logging=serial,vga,memory"
-KERNEL_CMDLINE = "ramdisk_size=32768 root=/dev/ram0 ro measureroot rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8"
+TBOOT_CMDLINE ??= "loglvl=all logging=serial,vga,memory"
+KERNEL_CMDLINE ??= "ramdisk_size=32768 root=/dev/ram0 ro measureroot rootimg=rootfs.img rootimgpcr=9 console=tty0 console=ttyS0,115200n8"
 
 inherit measured-bootimg
