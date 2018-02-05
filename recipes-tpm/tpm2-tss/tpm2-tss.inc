@@ -7,7 +7,7 @@ LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 
 DEPENDS = "autoconf-archive-native"
 
-S = "${WORKDIR}/${BPN}"
+S = "${WORKDIR}/${BPN}-${PV}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
@@ -57,14 +57,3 @@ FILES_libtctisocket-dev = " \
 FILES_libtctisocket-staticdev = "${libdir}/libtcti-socket.*a"
 
 inherit autotools pkgconfig
-
-do_configure_prepend () {
-	# Execute the bootstrap script, to generate src_vars.mk.
-	# The actual autotools bootstrapping is done by the normal
-	# do_configure, which does a better job with it (for example,
-	# it finds m4 macros also in the native sysroot).
-	currentdir=$(pwd)
-	cd ${S}
-	AUTORECONF=true ./bootstrap
-	cd ${currentdir}
-}
