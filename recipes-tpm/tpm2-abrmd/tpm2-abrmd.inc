@@ -40,3 +40,7 @@ do_install_append() {
         install -d ${D}${sysconfdir}/default
         install -m 0644 ${WORKDIR}/tpm2-abrmd.default ${D}${sysconfdir}/default/tpm2-abrmd
 }
+
+FILES_${PN} += " \
+    ${libdir}/systemd/system-preset/tpm2-abrmd.preset \
+"
