@@ -5,9 +5,11 @@ SECTION = "tpm"
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
 
+SRC_URI = "https://github.com/tpm2-software/${BPN}/releases/download/${PV}/${BPN}-${PV}.tar.gz"
+
 DEPENDS = "autoconf-archive-native"
 
-S = "${WORKDIR}/${BPN}"
+S = "${WORKDIR}/${BPN}-${PV}"
 
 PROVIDES = "${PACKAGES}"
 PACKAGES = " \
@@ -34,6 +36,7 @@ FILES_libtss2-dev = " \
     ${libdir}/libmarshal.so \
     ${libdir}/libsapi.so \
     ${libdir}/pkgconfig/sapi.pc \
+    ${libdir}/pkgconfig/marshal.pc \
 "
 FILES_libtss2-staticdev = " \
     ${libdir}/libmarshal.a \
@@ -57,14 +60,3 @@ FILES_libtctisocket-dev = " \
 FILES_libtctisocket-staticdev = "${libdir}/libtcti-socket.*a"
 
 inherit autotools pkgconfig
-
-do_configure_prepend () {
-	# Execute the bootstrap script, to generate src_vars.mk.
-	# The actual autotools bootstrapping is done by the normal
-	# do_configure, which does a better job with it (for example,
-	# it finds m4 macros also in the native sysroot).
-	currentdir=$(pwd)
-	cd ${S}
-	AUTORECONF=true ./bootstrap
-	cd ${currentdir}
-}
