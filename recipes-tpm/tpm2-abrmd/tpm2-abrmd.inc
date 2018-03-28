@@ -1,6 +1,8 @@
-SUMMARY = ""
-DESCRIPTION = ""
-SECTION = "tpm"
+SUMMARY = "TPM2 Access Broker & Resource Manager"
+DESCRIPTION = "This is a system daemon implementing the TPM2 Access Broker (AB) \
+and Resource Manager (RM) specification from the TCG (Trusted Computing Group)."
+HOMEPAGE = "https://github.com/tpm2-software/tpm2-abrmd"
+SECTION = "security/tpm"
 
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
