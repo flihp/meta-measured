@@ -4,7 +4,7 @@ SECTION = "tpm"
 
 LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=91b7c548d73ea16537799e8060cea819"
-DEPENDS = "tpm2-tss openssl curl autoconf-archive-native"
+DEPENDS = "tpm2-abrmd tpm2-tss openssl curl autoconf-archive-native"
 
 inherit autotools pkgconfig
 
