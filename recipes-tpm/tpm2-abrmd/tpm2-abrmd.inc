@@ -45,4 +45,5 @@ do_install_append() {
 
 FILES_${PN} += " \
     ${libdir}/systemd/system-preset/tpm2-abrmd.preset \
+    ${datadir}/dbus-1/system-services/com.intel.tss2.Tabrmd.service \
 "
