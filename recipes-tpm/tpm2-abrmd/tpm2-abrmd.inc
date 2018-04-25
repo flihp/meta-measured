@@ -24,7 +24,7 @@ CONFIGUREOPTS += " \
     --with-udevrulesdir=${sysconfdir}/udev/rules.d \
 "
 
-SYSTEMD_SERVICE = "tpm2-abrmd.service com.intel.tss2.Tabrmd.service"
+SYSTEMD_SERVICE = "tpm2-abrmd.service"
 
 INITSCRIPT_NAME = "tpm2-abrmd"
 INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 19 0 1 6 ."
