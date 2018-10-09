@@ -7,11 +7,12 @@ HOMEPAGE = "https://github.com/tpm2-software/tpm2-tss"
 SECTION = "security/tpm"
 
 LICENSE = "BSD-2-Clause"
-LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=500b2e742befc3da00684d8a1d5fd9da"
+LIC_FILES_CHKSUM = "file://${S}/LICENSE;md5=0b1d631c4218b72f6b05cb58613606f4"
 
 SRC_URI = "https://github.com/tpm2-software/${BPN}/releases/download/${PV}/${BPN}-${PV}.tar.gz"
 
-DEPENDS = "autoconf-archive-native"
+DEPENDS = "autoconf-archive-native libgcrypt"
+RDEPENDS_libtss2 = "libgcrypt"
 
 S = "${WORKDIR}/${BPN}-${PV}"
 
@@ -21,46 +22,35 @@ PACKAGES = " \
     ${PN}-doc \
     libtss2 \
     libtss2-dev \
-    libtss2-staticdev \
-    libtctidevice \
-    libtctidevice-dev \
-    libtctidevice-staticdev \
-    libtctisocket \
-    libtctisocket-dev \
-    libtctisocket-staticdev \
+    libtss2-doc \
 "
 
 FILES_libtss2 = " \
-    ${libdir}/libsapi.so.* \
-    ${libdir}/libmarshal.so.* \
+    ${libdir}/libtss2-esys.so.* \
+    ${libdir}/libtss2-mu.so.* \
+    ${libdir}/libtss2-sys.so.* \
+    ${libdir}/libtss2-tcti-device.so.* \
+    ${libdir}/libtss2-tcti-mssim.so.* \
+    ${libdir}/udev \
 "
+
 FILES_libtss2-dev = " \
-    ${includedir}/sapi \
-    ${includedir}/tcti/common.h \
-    ${libdir}/libmarshal.so \
-    ${libdir}/libsapi.so \
-    ${libdir}/pkgconfig/sapi.pc \
-    ${libdir}/pkgconfig/marshal.pc \
+    ${includedir}/tss2 \
+    ${libdir}/libtss2-esys.so \
+    ${libdir}/libtss2-mu.so \
+    ${libdir}/libtss2-sys.so \
+    ${libdir}/libtss2-tcti-device.so \
+    ${libdir}/libtss2-tcti-mssim.so \
+    ${libdir}/pkgconfig/tss2-esys.pc \
+    ${libdir}/pkgconfig/tss2-mu.pc \
+    ${libdir}/pkgconfig/tss2-sys.pc \
+    ${libdir}/pkgconfig/tss2-tcti-device.pc \
+    ${libdir}/pkgconfig/tss2-tcti-mssim.pc \
 "
-FILES_libtss2-staticdev = " \
-    ${libdir}/libmarshal.a \
-    ${libdir}/libmarshal.la \
-    ${libdir}/libsapi.a \
-    ${libdir}/libsapi.la \
+
+FILES_libtss2-doc = " \
+    ${mandir}/man3 \
+    ${mandir}/man7 \
 "
-FILES_libtctidevice = "${libdir}/libtcti-device.so.*"
-FILES_libtctidevice-dev = " \
-    ${includedir}/tcti/tcti_device.h \
-    ${libdir}/libtcti-device.so \
-    ${libdir}/pkgconfig/tcti-device.pc \
-"
-FILES_libtctidevice-staticdev = "${libdir}/libtcti-device.*a"
-FILES_libtctisocket = "${libdir}/libtcti-socket.so.*"
-FILES_libtctisocket-dev = " \
-    ${includedir}/tcti/tcti_socket.h \
-    ${libdir}/libtcti-socket.so \
-    ${libdir}/pkgconfig/tcti-socket.pc \
-"
-FILES_libtctisocket-staticdev = "${libdir}/libtcti-socket.*a"
 
 inherit autotools pkgconfig
