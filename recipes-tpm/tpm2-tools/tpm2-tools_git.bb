@@ -8,6 +8,8 @@ SRC_URI = " \
     git://github.com/tpm2-software/tpm2-tools.git;branch=${BRANCH} \
     "
 
+S = "${WORKDIR}/git"
+
 SRCREV = "${AUTOREV}"
 PVBASE := "${PV}"
 PV = "${PVBASE}.${SRCPV}"
