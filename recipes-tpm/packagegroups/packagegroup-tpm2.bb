@@ -10,7 +10,6 @@ RDEPENDS_packagegroup-tpm2 = "\
     libtss2 \
     libtctidevice \
     libtctisocket \
-    kernel-module-tpm-crb \
     tpm2-abrmd \
     tpm2-tools \
 "
