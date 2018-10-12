@@ -13,3 +13,10 @@ S = "${WORKDIR}/git"
 SRCREV = "${AUTOREV}"
 PVBASE := "${PV}"
 PV = "${PVBASE}.${SRCPV}"
+
+do_configure_prepend () {
+    currentdir=$(pwd)
+    cd ${S}
+    AUTORECONF=true ./bootstrap
+    cd ${currentdir}
+}
