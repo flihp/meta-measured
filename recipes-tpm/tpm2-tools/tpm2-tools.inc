@@ -11,10 +11,3 @@ DEPENDS = "tpm2-abrmd tpm2-tss openssl curl autoconf-archive-native"
 inherit autotools pkgconfig
 
 SRC_URI = "https://github.com/tpm2-software/${BPN}/releases/download/${PV}/${BPN}-${PV}.tar.gz"
-
-do_configure_prepend () {
-    currentdir=$(pwd)
-    cd ${S}
-    AUTORECONF=true ./bootstrap
-    cd ${currentdir}
-}
