@@ -13,3 +13,10 @@ RDEPENDS_packagegroup-tpm2 = "\
     tpm2-abrmd \
     tpm2-tools \
 "
+
+# Kernel module will be installed if it was build as a module (=m).
+# At the same time, the build will not fail if package is not available when
+# the module is compiled in kernel (=y)
+RRECOMMENDS_packagegroup-tpm2 = "\
+    kernel-module-tpm-crb \
+"
