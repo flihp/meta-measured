@@ -4,12 +4,15 @@ PR = "r0"
 
 inherit packagegroup
 
-PROVIDES = "packagegroup-tpm"
+PROVIDES = " \
+    ${@bb.utils.contains("MACHINE_FEATURES", 'tpm', 'packagegroup-tpm', '', d)} \
+"
 
-RDEPENDS_packagegroup-tpm = "\
-    trousers \
-    tpm-tools \
+SUMMARY_packagegroup-tpm = "TPM 1.2 support"
+RRECOMMENDS_packagegroup-tpm = " \
     kernel-module-tpm-nsc \
     kernel-module-tpm-atmel \
     kernel-module-tpm-infineon \
-    "
+    trousers \
+    tpm-tools \
+"

@@ -4,19 +4,16 @@ PR = "r0"
 
 inherit packagegroup
 
-PROVIDES = "packagegroup-tpm2"
+PROVIDES = " \
+    ${@bb.utils.contains("MACHINE_FEATURES", 'tpm2', 'packagegroup-tpm2', '', d)} \
+"
 
-RDEPENDS_packagegroup-tpm2 = "\
+SUMMARY_packagegroup-tpm2 = "TPM 2.0 support"
+RRECOMMENDS_packagegroup-tpm2 = " \
+    kernel-module-tpm-crb \
     libtss2 \
     libtctidevice \
     libtctisocket \
     tpm2-abrmd \
     tpm2-tools \
-"
-
-# Kernel module will be installed if it was build as a module (=m).
-# At the same time, the build will not fail if package is not available when
-# the module is compiled in kernel (=y)
-RRECOMMENDS_packagegroup-tpm2 = "\
-    kernel-module-tpm-crb \
 "
