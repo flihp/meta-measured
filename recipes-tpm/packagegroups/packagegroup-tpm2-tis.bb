@@ -7,8 +7,6 @@ inherit packagegroup
 RRECOMMENDS_packagegroup-tpm2-tis = " \
     kernel-module-tpm-tis \
     libtss2 \
-    libtctidevice \
-    libtctisocket \
     tpm2-abrmd \
     tpm2-tools \
 "
