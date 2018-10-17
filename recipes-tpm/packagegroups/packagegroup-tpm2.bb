@@ -12,8 +12,6 @@ SUMMARY_packagegroup-tpm2 = "TPM 2.0 support"
 RRECOMMENDS_packagegroup-tpm2 = " \
     kernel-module-tpm-crb \
     libtss2 \
-    libtctidevice \
-    libtctisocket \
     tpm2-abrmd \
     tpm2-tools \
 "
