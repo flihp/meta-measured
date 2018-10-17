@@ -1,0 +1,3 @@
+define KFEATURE_DESCRIPTION "Enable TPM2 with TIS interface."
+
+kconf hardware tpm2-tis.cfg

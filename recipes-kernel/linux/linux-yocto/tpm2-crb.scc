@@ -1,0 +1,3 @@
+define KFEATURE_DESCRIPTION "Enable TPM2 using CRB interface."
+
+kconf hardware tpm2-crb.cfg
