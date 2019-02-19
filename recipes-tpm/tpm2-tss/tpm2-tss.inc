@@ -22,6 +22,7 @@ PACKAGES = " \
     ${PN}-doc \
     libtss2 \
     libtss2-dev \
+    libtss2-staticdev \
     libtss2-doc \
 "
 
@@ -46,6 +47,14 @@ FILES_libtss2-dev = " \
     ${libdir}/pkgconfig/tss2-sys.pc \
     ${libdir}/pkgconfig/tss2-tcti-device.pc \
     ${libdir}/pkgconfig/tss2-tcti-mssim.pc \
+"
+
+FILES_libtss2-staticdev = " \
+    ${libdir}/libtss2-esys.a \
+    ${libdir}/libtss2-mu.a \
+    ${libdir}/libtss2-sys.a \
+    ${libdir}/libtss2-tcti-device.a \
+    ${libdir}/libtss2-tcti-mssim.a \
 "
 
 FILES_libtss2-doc = " \
