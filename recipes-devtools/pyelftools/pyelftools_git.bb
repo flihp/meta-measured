@@ -15,6 +15,6 @@ SRC_URI += " \
 "
 SRCREV = "master"
 
-inherit distutils
+inherit setuptools
 
 BBCLASSEXTEND = "native"
