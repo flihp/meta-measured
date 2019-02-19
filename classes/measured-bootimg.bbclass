@@ -15,9 +15,9 @@ inherit core-image
 # fetch/unpack tasks don't normally run for image recipes. This means our
 # bootloader configs won't end up in WORKDIR unless we do some magic here.
 python () {
-	# Ensure we run these usually noexec tasks
-	d.delVarFlag("do_fetch", "noexec")
-	d.delVarFlag("do_unpack", "noexec")
+    # Ensure we run these usually noexec tasks
+    d.delVarFlag("do_fetch", "noexec")
+    d.delVarFlag("do_unpack", "noexec")
 }
 
 syslinux_hddimg_populate_append() {
