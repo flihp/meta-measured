@@ -21,10 +21,4 @@ reference images you can clone the 'oe-build-scripts' repo from my github and
 checkout the 'measured' branch to get my scripts that set up bitbake and the
 basic OE metadata for you.
 
-License
--------
-All metadata is MIT licensed unless otherwise stated. Source code included
-in tree for individual recipes is under the LICENSE stated in each recipe
-(.bb file) unless otherwise stated.
-
 This README document is Copyright (C) 2014 Philip Tricca <flihp@twobit.us>
