@@ -47,6 +47,7 @@ FILES_libtss2-dev = " \
     ${libdir}/pkgconfig/tss2-sys.pc \
     ${libdir}/pkgconfig/tss2-tcti-device.pc \
     ${libdir}/pkgconfig/tss2-tcti-mssim.pc \
+    ${FILES_tpm2-tss-dev} \
 "
 
 FILES_libtss2-staticdev = " \
