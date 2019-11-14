@@ -1,0 +1,14 @@
+Index: tboot-1.9.10/Config.mk
+===================================================================
+--- tboot-1.9.10.orig/Config.mk
++++ tboot-1.9.10/Config.mk
+@@ -43,7 +43,8 @@ CFLAGS_WARN       = -Wall -Wformat-secur
+ 	            -Wextra -Winit-self -Wswitch-default -Wunused-parameter \
+ 	            -Wwrite-strings \
+ 	            $(call cc-option,$(CC),-Wlogical-op,) \
+-	            -Wno-missing-field-initializers
++	            -Wno-missing-field-initializers \
++		    -Wno-address-of-packed-member
+ 
+ AS         ?= as
+ LD         ?= ld
