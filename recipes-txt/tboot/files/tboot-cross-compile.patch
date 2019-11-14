@@ -1,8 +1,10 @@
+Index: tboot-1.9.10/Config.mk
+===================================================================
 --- a/Config.mk
 +++ b/Config.mk
-@@ -46,16 +46,16 @@ CFLAGS_WARN       = -Wall -Wformat-secur
- 	            -Wno-missing-field-initializers \
- 	            -D_FORTIFY_SOURCE=2
+@@ -45,16 +45,16 @@ CFLAGS_WARN       = -Wall -Wformat-secur
+ 	            $(call cc-option,$(CC),-Wlogical-op,) \
+ 	            -Wno-missing-field-initializers
  
 -AS         = as
 -LD         = ld
