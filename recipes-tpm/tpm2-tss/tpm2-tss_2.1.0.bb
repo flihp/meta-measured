@@ -1,4 +1,0 @@
-include ${BPN}.inc
-
-SRC_URI[md5sum] = "64e2e9ff34b60502da729504aed5100c"
-SRC_URI[sha256sum] = "a50b8dbd51f0c274cf874351786ed252c5024c952bf699fbd595ac292a27ab19"
