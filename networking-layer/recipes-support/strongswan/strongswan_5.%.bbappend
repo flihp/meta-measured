@@ -8,8 +8,8 @@ PACKAGECONFIG += " \
     imv-os \
     imc-attestation \
     imv-attestation \
-    imc-swid \
-    imv-swid \
+    imc-swima \
+    imv-swima \
     tnc-ifmap \
     tnc-imc \
     tnc-imv \
@@ -28,7 +28,8 @@ PACKAGECONFIG[imc-os] = "--enable-imc-os,--disable-imc-os,,"
 PACKAGECONFIG[imv-os] = "--enable-imv-os,--disable-imv-os,,"
 PACKAGECONFIG[imc-attestation] = "--enable-imc-attestation,--disable-imc-attestation,,"
 PACKAGECONFIG[imv-attestation] = "--enable-imv-attestation,--disable-imv-attestation,,"
-PACKAGECONFIG[imc-swid] = "--enable-imc-swid,--disable-imc-swid,,"
+PACKAGECONFIG[imc-swima] = "--enable-imc-swima,--disable-imc-swima,json-c,"
+PACKAGECONFIG[imv-swima] = "--enable-imv-swima,--disable-imv-swima,json-c,"
 PACKAGECONFIG[tnc-ifmap] = "--enable-tnc-ifmap,--disable-tnc-ifmap,libxml2,"
 PACKAGECONFIG[tnc-imc] = "--enable-tnc-imc,--disable-tnc-imc,,"
 PACKAGECONFIG[tnc-imv] = "--enable-tnc-imv,--disable-tnc-imv,,"
