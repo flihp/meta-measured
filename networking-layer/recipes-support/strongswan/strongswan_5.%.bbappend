@@ -36,7 +36,7 @@ PACKAGECONFIG[tnc-pdp] = "--enable-tnc-pdp,--disable-tnc-pdp,,"
 PACKAGECONFIG[tnccs-11] = "--enable-tnccs-11,--disable-tnccs-11,libxml2,"
 PACKAGECONFIG[tnccs-20] = "--enable-tnccs-20,--disable-tnccs-20,,"
 PACKAGECONFIG[tnccs-dynamic] = "--enable-tnccs-dynamic,--disable-tnccs-dynamic,,"
-PACKAGECONFIG[tss-trousers] = "--with-tss=trousers,,libtspi,"
+PACKAGECONFIG[tss-trousers] = "--enable-tss-trousers,,libtspi,"
 
 FILES_${PN} += "${libdir}/ipsec/imcvs/*.so ${datadir}/regid.2004-03.org.strongswan"
 FILES_${PN}-dbg += "${libdir}/ipsec/imcvs/.debug"
