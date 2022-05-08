@@ -1,3 +1,5 @@
+NOTE: This project is no longer maintained.
+
 meta-measured
 -------------
 This layer's purpose is constructing a linux system that performs a 'measured launch'. This requires enabling support for:
